@@ -4,9 +4,9 @@ Representational Quality for Mathematical Problem-Solving in RL vs SFT Finetuned
 
 ## Authors
 
-* **Antyabha Rahman** (University of New South Wales) - First Author
-* Omar Ankit (University of Waterloo)
+* Antyabha Rahman (University of New South Wales)
 * Akshaj Gurugubelli (Algoverse AI Research)
+* Omar Ankit (University of Waterloo)
 * Kevin Zhu (Algoverse AI Research)
 * **Aishwarya Balwani** (St. Jude Children's Research Hospital) - Corresponding Author
 
@@ -23,7 +23,7 @@ Visit our project website: [https://omara.github.io/reasoning-mechanistic-analys
 ```bibtex
 @article{rahman2025reasoning,
   title={Probing the Origins of Reasoning Performance: Representational Quality for Mathematical Problem-Solving in RL vs SFT Finetuned Models},
-  author={Rahman, Antyabha and Ankit, Omar and Gurugubelli, Akshaj and Zhu, Kevin and Balwani, Aishwarya},
+  author={Rahman, Antyabha and Gurugubelli, Akshaj and Ankit, Omar and Zhu, Kevin and Balwani, Aishwarya},
   journal={arXiv preprint},
   year={2025}
 }
