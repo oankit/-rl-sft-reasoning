@@ -9,70 +9,69 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <!-- Main content wrapper -->
-    <div class="main-content">
-        <!-- Header -->
-        <header>
-            <h1 class="title">Probing the Origins of Reasoning Performance: Representational Quality for Mathematical Problem-Solving in RL vs SFT Finetuned Models</h1>
-            
-            <!-- Authors -->
-            <div class="authors">
-                <div class="author-list">
-                    <div class="author-item">
-                        <div class="author-name">Antyabha Rahman<sup>*†</sup></div>
-                        <div class="author-affiliation">University of New South Wales</div>
-                    </div>
-                    <div class="author-item">
-                        <div class="author-name">Akshaj Gurugubelli<sup>*†</sup></div>
-                        <div class="author-affiliation">Algoverse AI Research</div>
-                    </div>
-                    <div class="author-item">
-                        <div class="author-name">Omar Ankit<sup>*†</sup></div>
-                        <div class="author-affiliation">University of Waterloo</div>
-                    </div>
-                    <div class="author-item">
-                        <div class="author-name">Kevin Zhu<sup>†</sup></div>
-                        <div class="author-affiliation">Algoverse AI Research</div>
-                    </div>
-                    <div class="author-item">
-                        <div class="author-name">Ashwinee Panda<sup>†</sup></div>
-                        <div class="author-affiliation">Algoverse AI Research</div>
-                    </div>
-                    <div class="author-item">
-                        <div class="author-name">Aishwarya Balwani<sup>†‡</sup></div>
-                        <div class="author-affiliation">St. Jude Children's Research Hospital</div>
-                    </div>
+    <header class="header">
+        <h1>Probing the Origins of Reasoning Performance: Representational Quality for Mathematical Problem-Solving in RL vs SFT Finetuned Models</h1>
+
+        <div class="authors">
+            <div class="author-list">
+                <div class="author-item">
+                    <div class="author-name">Antyabha Rahman<sup>*†</sup></div>
+                    <div class="author-affiliation">University of New South Wales</div>
                 </div>
-                <div class="footnote">
-                    <sup>*</sup>Joint first co-authors with equal contributions. Listed in alphabetical order.<br>
-                    <sup>†</sup>Work conducted with Algoverse AI Research<br>
-                    <sup>‡</sup>Corresponding author. Email: aishwarya.balwani@stjude.org
+                <div class="author-item">
+                    <div class="author-name">Akshaj Gurugubelli<sup>*†</sup></div>
+                    <div class="author-affiliation">Algoverse AI Research</div>
+                </div>
+                <div class="author-item">
+                    <div class="author-name">Omar Ankit<sup>*†</sup></div>
+                    <div class="author-affiliation">University of Waterloo</div>
+                </div>
+                <div class="author-item">
+                    <div class="author-name">Kevin Zhu<sup>†</sup></div>
+                    <div class="author-affiliation">Algoverse AI Research</div>
+                </div>
+                <div class="author-item">
+                    <div class="author-name">Ashwinee Panda<sup>†</sup></div>
+                    <div class="author-affiliation">Algoverse AI Research</div>
+                </div>
+                <div class="author-item">
+                    <div class="author-name">Aishwarya Balwani<sup>†‡</sup></div>
+                    <div class="author-affiliation">St. Jude Children's Research Hospital</div>
                 </div>
             </div>
-            
-            <!-- Links -->
-            <div class="links">
-                <a href="https://github.com/omara/reasoning-mechanistic-analysis" class="btn" target="_blank">
-                    <i class="fab fa-github"></i> GitHub
-                </a>
-                <a href="#" class="btn" target="_blank">
-                    <i class="fas fa-file-pdf"></i> Paper (Coming Soon)
-                </a>
-                <a href="https://algoverse.ai" class="btn" target="_blank">
-                    <i class="fas fa-building"></i> Algoverse AI
-                </a>
+            <div class="footnote">
+                <sup>*</sup>Joint first co-authors with equal contributions. Listed in alphabetical order.<br>
+                <sup>†</sup>Work conducted with Algoverse AI Research<br>
+                <sup>‡</sup>Corresponding author. Email: aishwarya.balwani@stjude.org
             </div>
-            
-            <!-- Overview Figure -->
-            <div class="figure">
-                <img src="images/figure1.png" alt="Overview figure" class="overview-img">
-                <p class="caption">Figure 1: Overview of mechanistic differences between RL and supervised training in reasoning models</p>
-            </div>
-        </header>
-        
-        <!-- Abstract -->
-        <section id="abstract">
-            <h2>Abstract</h2>
+        </div>
+
+        <nav class="nav-bar">
+            <a href="https://github.com/omara/reasoning-mechanistic-analysis" class="nav-button">
+                <svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path>
+                </svg>
+                GitHub
+            </a>
+            <a href="#" class="nav-button">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M14 2H6C4.9 2 4 2.9 4 4v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"></path>
+                </svg>
+                Paper (Coming Soon)
+            </a>
+            <a href="https://algoverse.ai" class="nav-button">
+                Algoverse AI
+            </a>
+        </nav>
+    </header>
+
+    <div class="figure-section">
+        <img src="images/figure1.png" alt="Overview figure showing reasoning performance analysis">
+    </div>
+
+    <div class="container">
+        <h2 class="abstract-title">Abstract</h2>
+        <div class="content">
             <p>
                 Large reasoning models trained via reinforcement learning (RL) substantially outperform their supervised counterparts
                 on tasks requiring logic and mathematical reasoning, yet the mechanistic basis for these improvements remains unclear. 
@@ -104,9 +103,10 @@
                 insights for designing more reliable reasoning systems and highlights the value of probing internal representations to 
                 understand capability improvements.
             </p>
-        </section>
-        
-        <!-- Method -->
+        </div>
+    </div>
+    
+    <div class="container">
         <section id="method">
             <h2>Methodology</h2>
             <p>
@@ -170,12 +170,11 @@
 }</code></pre>
             </div>
         </section>
-        
-        <!-- Footer -->
-        <footer>
-            <p>&copy; 2025 Algoverse AI Research. All rights reserved.</p>
-        </footer>
     </div>
+
+    <footer>
+        <p>&copy; 2025 Algoverse AI Research. All rights reserved.</p>
+    </footer>
 </body>
 </html>
 
