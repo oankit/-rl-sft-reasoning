@@ -19,19 +19,15 @@
                     <div class="author-affiliation">University of New South Wales</div>
                 </div>
                 <div class="author-item">
-                    <div class="author-name">Akshaj Gurugubelli<sup>*†</sup></div>
+                    <div class="author-name">Akshaj Gurugubelli</div>
                     <div class="author-affiliation">Algoverse AI Research</div>
                 </div>
                 <div class="author-item">
-                    <div class="author-name">Omar Ankit<sup>*†</sup></div>
+                    <div class="author-name">Omar Ankit<sup>†</sup></div>
                     <div class="author-affiliation">University of Waterloo</div>
                 </div>
                 <div class="author-item">
-                    <div class="author-name">Kevin Zhu<sup>†</sup></div>
-                    <div class="author-affiliation">Algoverse AI Research</div>
-                </div>
-                <div class="author-item">
-                    <div class="author-name">Ashwinee Panda<sup>†</sup></div>
+                    <div class="author-name">Kevin Zhu</div>
                     <div class="author-affiliation">Algoverse AI Research</div>
                 </div>
                 <div class="author-item">
@@ -40,7 +36,7 @@
                 </div>
             </div>
             <div class="footnote">
-                <sup>*</sup>Joint first co-authors with equal contributions. Listed in alphabetical order.<br>
+                <sup>*</sup>First author<br>
                 <sup>†</sup>Work conducted with Algoverse AI Research<br>
                 <sup>‡</sup>Corresponding author. Email: aishwarya.balwani@stjude.org
             </div>
@@ -66,7 +62,7 @@
     </header>
 
     <div class="figure-section">
-        <img src="images/figure1.png" alt="Overview figure showing reasoning performance analysis">
+        <img src="images/layer_performance_regression.png" alt="Layer-wise probe accuracy across model families">
     </div>
 
     <div class="container">
@@ -116,46 +112,34 @@
             </p>
             
             <div class="figure">
-                <img src="images/figure2.png" alt="Linear probing results" class="content-img">
-                <p class="caption">Figure 2: Linear probing accuracy across layers for RL vs supervised models</p>
+                <img src="images/figure3.png" alt="Accuracy drop analysis" class="content-img">
             </div>
             
             <div class="figure">
-                <img src="images/figure3.png" alt="Layer sensitivity analysis" class="content-img">
-                <p class="caption">Figure 3: Soft-mean ablation showing layer-wise sensitivity in reasoning models</p>
+                <img src="images/qwen_cv_accc.png" alt="Qwen coefficient of variation" class="content-img">
             </div>
             
             <div class="figure">
-                <img src="images/figure4.png" alt="Token generation patterns" class="content-img">
-                <p class="caption">Figure 4: Token generation variability across problem difficulty levels</p>
+                <img src="images/deepseekmath_cv_accc.png" alt="DeepSeek coefficient of variation" class="content-img">
+            </div>
+            
+            <div class="figure">
+                <img src="images/student_pop.png" alt="Student population analysis" class="content-img">
+            </div>
+            
+            <div class="figure">
+                <img src="images/seq_grow.png" alt="Sequence growth analysis" class="content-img">
+            </div>
+            
+            <div class="figure">
+                <img src="images/cost_calc.png" alt="Cost calculation" class="content-img">
+            </div>
+            
+            <div class="figure">
+                <img src="images/condi_prob.png" alt="Conditional probability" class="content-img">
             </div>
         </section>
         
-        <!-- Results -->
-        <section id="results">
-            <h2>Key Findings</h2>
-            <p>
-                Our analysis reveals three key findings: (1) RL models develop more structured reasoning representations 
-                earlier in their networks, with 11 percentage points higher probe accuracy; (2) RL training creates a 
-                hierarchical reasoning architecture with progressive layer sensitivity toward deeper layers; and (3) 
-                superior representations enable more efficient and consistent computational resource allocation.
-            </p>
-            
-            <div class="figure">
-                <img src="images/figure5.png" alt="Comparative results" class="content-img">
-                <p class="caption">Figure 5: Comparison of representation quality between RL and supervised models</p>
-            </div>
-            
-            <div class="figure">
-                <img src="images/figure6.png" alt="Computational efficiency" class="content-img">
-                <p class="caption">Figure 6: Computational resource allocation patterns across model types</p>
-            </div>
-            
-            <div class="figure">
-                <img src="images/figure7.png" alt="Performance analysis" class="content-img">
-                <p class="caption">Figure 7: Performance and variability analysis across difficulty levels</p>
-            </div>
-        </section>
         
         <!-- Citation -->
         <section id="citation">
@@ -164,7 +148,7 @@
             <div class="citation-box">
                 <pre><code>@article{rahman2025reasoning,
   title={Probing the Origins of Reasoning Performance: Representational Quality for Mathematical Problem-Solving in RL vs SFT Finetuned Models},
-  author={Rahman, Antyabha and Gurugubelli, Akshaj and Ankit, Omar and Zhu, Kevin and Panda, Ashwinee and Balwani, Aishwarya},
+  author={Rahman, Antyabha and Gurugubelli, Akshaj and Ankit, Omar and Zhu, Kevin and Balwani, Aishwarya},
   journal={arXiv preprint},
   year={2025}
 }</code></pre>
