@@ -1,0 +1,17 @@
+# GitHub Pages Configuration
+# This file is optional but can be useful for Jekyll-based customization
+
+# Site settings
+title: Your Paper Title
+description: Research paper website
+author: Your Name
+
+# Build settings
+markdown: kramdown
+
+# Exclude files from processing
+exclude:
+  - README.md
+  - LICENSE
+  - .gitignore
+
