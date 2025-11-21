@@ -1,11 +1,3 @@
-# macOS
-.DS_Store
-
-# Windows
-Thumbs.db
-ehthumbs.db
-Desktop.ini
-
 # Editor files
 .vscode/
 .idea/
@@ -13,13 +5,32 @@ Desktop.ini
 *.swo
 *~
 
-# Temp files
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Temporary files
 *.tmp
-*.bak
+*.log
 
-# Node modules (if using any build tools)
+# Documentation build files
+_site/
+.jekyll-cache/
+.jekyll-metadata
+
+# Node modules (if using any JS tools)
 node_modules/
+package-lock.json
 
-# Other
-.env
+# Python (if using any Python tools)
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+env/
+venv/
 
+# Backup files
+*.bak
+*.backup

@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Your Paper Title | GitHub Pages</title>
+    <title>Probing the Origins of Reasoning Performance | Algoverse AI Research</title>
+    <meta name="description" content="Representational quality for mathematical problem-solving in RL vs SFT finetuned models.">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -11,48 +12,60 @@
     <div class="container">
         <!-- Header -->
         <header>
-            <h1 class="title">Your Paper Title Here</h1>
+            <h1 class="title">Probing the Origins of Reasoning Performance: Representational Quality for Mathematical Problem-Solving in RL vs SFT Finetuned Models</h1>
             
             <!-- Authors -->
             <div class="authors">
                 <p>
-                    <span class="author">Author Name 1<sup>*†</sup></span>
-                    <span class="affiliation">Your Institution</span>
+                    <span class="author">Antyabha Rahman<sup>*†</sup></span>
+                    <span class="affiliation">University of New South Wales</span>
                 </p>
                 <p>
-                    <span class="author">Author Name 2<sup>*†</sup></span>
-                    <span class="affiliation">Another Institution</span>
+                    <span class="author">Akshaj Gurugubelli<sup>*†</sup></span>
+                    <span class="affiliation">Algoverse AI Research</span>
                 </p>
                 <p>
-                    <span class="author">Author Name 3<sup>†</sup></span>
-                    <span class="affiliation">Third Institution</span>
+                    <span class="author">Omar Ankit<sup>*†</sup></span>
+                    <span class="affiliation">University of Waterloo</span>
+                </p>
+                <p>
+                    <span class="author">Kevin Zhu<sup>†</sup></span>
+                    <span class="affiliation">Algoverse AI Research</span>
+                </p>
+                <p>
+                    <span class="author">Ashwinee Panda<sup>†</sup></span>
+                    <span class="affiliation">Algoverse AI Research</span>
+                </p>
+                <p>
+                    <span class="author">Aishwarya Balwani<sup>†‡</sup></span>
+                    <span class="affiliation">St. Jude Children's Research Hospital</span>
                 </p>
             </div>
             
             <!-- Author notes -->
             <div class="author-notes">
                 <p><sup>*</sup>Joint first co-authors with equal contributions. Listed in alphabetical order.</p>
-                <p><sup>†</sup>Work conducted with Your Research Group</p>
-                <p><sup>‡</sup>Corresponding author. Email: corresponding@email.com</p>
+                <p><sup>†</sup>Work conducted with Algoverse AI Research</p>
+                <p><sup>‡</sup>Corresponding author. Email: aishwarya.balwani@stjude.org</p>
             </div>
             
             <!-- Links -->
             <div class="links">
-                <a href="https://github.com/yourusername/yourrepo" class="btn" target="_blank">
+                <a href="https://github.com/omara/reasoning-mechanistic-analysis" class="btn" target="_blank">
                     <i class="fab fa-github"></i> GitHub
                 </a>
-                <a href="https://arxiv.org/abs/yourpaper" class="btn" target="_blank">
-                    <i class="fas fa-file-pdf"></i> ArXiv
+                <a href="#" class="btn" target="_blank">
+                    <i class="fas fa-file-pdf"></i> Paper (Coming Soon)
                 </a>
-                <a href="https://huggingface.co/yourusername" class="btn" target="_blank">
-                    <i class="fas fa-face-smile"></i> HuggingFace
+                <a href="https://algoverse.ai" class="btn" target="_blank">
+                    <i class="fas fa-building"></i> Algoverse AI
                 </a>
             </div>
             
             <!-- Overview Figure -->
             <div class="figure">
-                <img src="images/overview.png" alt="Overview figure" class="overview-img">
-                <p class="caption">Overview figure showing the main results of your research</p>
+                <img src="images/figure1.png" alt="Overview figure" class="overview-img">
+                <p class="caption">Figure 1: Overview of mechanistic differences between RL and supervised training in reasoning models</p>
             </div>
         </header>
         
@@ -60,50 +73,86 @@
         <section id="abstract">
             <h2>Abstract</h2>
             <p>
-                Your abstract goes here. This should be a concise summary of your research paper, 
-                highlighting the key contributions, methodology, and findings. Replace this text 
-                with the actual abstract from your paper.
+                Large reasoning models trained via reinforcement learning (RL) substantially outperform their supervised counterparts
+                on tasks requiring logic and mathematical reasoning, yet the mechanistic basis for these improvements remains unclear. 
+                We investigate this phenomenon through an integrated behavioral-mechanistic analysis of mathematical reasoning, asking: 
+                what internal differences enable RL models' superior performance? We present three converging lines of evidence that 
+                RL models develop higher-quality reasoning representations earlier in their networks.
             </p>
             <p>
-                You can have multiple paragraphs in your abstract if needed. Make sure to clearly 
-                communicate the main ideas and contributions of your work.
+                First, linear probes trained on layer-wise hidden states reveal that RL models achieve an average probe accuracy of 
+                82-87% compared to 71-76% for instruction-tuned models, representing an 11 percentage point improvement. Higher accuracy 
+                in predicting answer correctness, with this capability emerging earlier than in base models—suggesting RL training produces 
+                more structured, reasoning-relevant representations throughout the network. Second, soft-mean ablation studies show RL models 
+                exhibit greater layer sensitivity overall, with impact increasing progressively toward deeper layers (r=0.47 vs r=-0.11 
+                for instruction-tuned), confirming RL training creates hierarchical reasoning architecture with both earlier engagement 
+                and deeper concentration.
+            </p>
+            <p>
+                These representational differences manifest behaviorally in how models allocate computational resources during generation. 
+                Analyzing within-problem token generation variability across 50 responses per problem, we find that Qwen3-Thinking maintains 
+                remarkably consistent token usage (CV = 0.25-0.33) across all difficulty levels while achieving 97.7% accuracy, suggesting 
+                its superior representations enable efficient, reliable solution paths. In contrast, DeepSeek-Math models exhibit elevated 
+                variability specifically at capability boundaries (CV > 0.8 at 20-60% accuracy), indicating adaptive computational effort 
+                where problems strain model capacity—yet DeepSeek's RL and supervised variants show nearly identical variability profiles, 
+                suggesting current reward structures may not fully exploit the potential for adaptive token allocation.
+            </p>
+            <p>
+                Together, these findings suggest that RL training fundamentally restructures how models represent and process reasoning 
+                problems, building more robust and accessible reasoning representations. This mechanistic understanding provides actionable 
+                insights for designing more reliable reasoning systems and highlights the value of probing internal representations to 
+                understand capability improvements.
             </p>
         </section>
         
-        <!-- Introduction (Optional) -->
-        <section id="introduction">
-            <h2>Introduction</h2>
-            <p>
-                Provide an introduction to your work, explaining the motivation, background, 
-                and context for your research.
-            </p>
-        </section>
-        
-        <!-- Method (Optional) -->
+        <!-- Method -->
         <section id="method">
-            <h2>Method</h2>
+            <h2>Methodology</h2>
             <p>
-                Describe your methodology here. You can include figures, equations, or code snippets 
-                to illustrate your approach.
+                Our investigation combines three complementary approaches to understand how RL training affects reasoning models:
+                linear probing of layer-wise representations, soft-mean ablation studies to measure layer importance, and 
+                analysis of computational resource allocation through token generation patterns.
             </p>
             
             <div class="figure">
-                <img src="images/method.png" alt="Method diagram" class="content-img">
-                <p class="caption">Figure 1: Description of your method</p>
+                <img src="images/figure2.png" alt="Linear probing results" class="content-img">
+                <p class="caption">Figure 2: Linear probing accuracy across layers for RL vs supervised models</p>
+            </div>
+            
+            <div class="figure">
+                <img src="images/figure3.png" alt="Layer sensitivity analysis" class="content-img">
+                <p class="caption">Figure 3: Soft-mean ablation showing layer-wise sensitivity in reasoning models</p>
+            </div>
+            
+            <div class="figure">
+                <img src="images/figure4.png" alt="Token generation patterns" class="content-img">
+                <p class="caption">Figure 4: Token generation variability across problem difficulty levels</p>
             </div>
         </section>
         
-        <!-- Results (Optional) -->
+        <!-- Results -->
         <section id="results">
-            <h2>Results</h2>
+            <h2>Key Findings</h2>
             <p>
-                Present your main findings and results here. Include visualizations, tables, 
-                or charts to support your claims.
+                Our analysis reveals three key findings: (1) RL models develop more structured reasoning representations 
+                earlier in their networks, with 11 percentage points higher probe accuracy; (2) RL training creates a 
+                hierarchical reasoning architecture with progressive layer sensitivity toward deeper layers; and (3) 
+                superior representations enable more efficient and consistent computational resource allocation.
             </p>
             
             <div class="figure">
-                <img src="images/results.png" alt="Results" class="content-img">
-                <p class="caption">Figure 2: Main experimental results</p>
+                <img src="images/figure5.png" alt="Comparative results" class="content-img">
+                <p class="caption">Figure 5: Comparison of representation quality between RL and supervised models</p>
+            </div>
+            
+            <div class="figure">
+                <img src="images/figure6.png" alt="Computational efficiency" class="content-img">
+                <p class="caption">Figure 6: Computational resource allocation patterns across model types</p>
+            </div>
+            
+            <div class="figure">
+                <img src="images/figure7.png" alt="Performance analysis" class="content-img">
+                <p class="caption">Figure 7: Performance and variability analysis across difficulty levels</p>
             </div>
         </section>
         
@@ -112,18 +161,18 @@
             <h2>Citation</h2>
             <p>If you find this work useful, please cite our paper:</p>
             <div class="citation-box">
-                <pre><code>@article{yourpaper2024,
-  title={Your Paper Title},
-  author={Author1, Name and Author2, Name and Author3, Name},
-  journal={Conference/Journal Name},
-  year={2024}
+                <pre><code>@article{rahman2025reasoning,
+  title={Probing the Origins of Reasoning Performance: Representational Quality for Mathematical Problem-Solving in RL vs SFT Finetuned Models},
+  author={Rahman, Antyabha and Gurugubelli, Akshaj and Ankit, Omar and Zhu, Kevin and Panda, Ashwinee and Balwani, Aishwarya},
+  journal={arXiv preprint},
+  year={2025}
 }</code></pre>
             </div>
         </section>
         
         <!-- Footer -->
         <footer>
-            <p>&copy; 2024 Your Name/Institution. All rights reserved.</p>
+            <p>&copy; 2025 Algoverse AI Research. All rights reserved.</p>
         </footer>
     </div>
 </body>

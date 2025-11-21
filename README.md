@@ -1,121 +1,46 @@
-# Paper Website
+# Probing the Origins of Reasoning Performance
 
-This is a GitHub Pages website for your research paper, styled similarly to professional academic paper websites.
+Representational Quality for Mathematical Problem-Solving in RL vs SFT Finetuned Models
 
-## Setup Instructions
+## Authors
 
-### 1. Repository Setup
-1. Create a new GitHub repository (or use an existing one)
-2. Upload these files to your repository
-3. Go to Settings > Pages
-4. Under "Source", select "Deploy from a branch"
-5. Select the `main` branch and `/ (root)` folder
-6. Click Save
+* **Antyabha Rahman** (University of New South Wales)
+* **Akshaj Gurugubelli** (Algoverse AI Research)
+* **Omar Ankit** (University of Waterloo)
+* Kevin Zhu (Algoverse AI Research)
+* Ashwinee Panda (Algoverse AI Research)
+* **Aishwarya Balwani** (St. Jude Children's Research Hospital) - Corresponding Author
 
-Your website will be available at: `https://yourusername.github.io/repository-name/`
+*Joint first co-authors with equal contributions*
 
-### 2. Customization
+## Abstract
 
-#### Update Content
-Edit `index.html` to customize:
-- **Title**: Replace "Your Paper Title Here" with your paper's title
-- **Authors**: Update author names, affiliations, and superscripts
-- **Links**: Update GitHub, ArXiv, and HuggingFace URLs
-- **Abstract**: Replace with your paper's abstract
-- **Sections**: Add or remove sections as needed (Introduction, Method, Results, etc.)
-- **Citation**: Update the BibTeX citation with your paper details
+Large reasoning models trained via reinforcement learning (RL) substantially outperform their supervised counterparts on tasks requiring logic and mathematical reasoning, yet the mechanistic basis for these improvements remains unclear. We investigate this phenomenon through an integrated behavioral-mechanistic analysis of mathematical reasoning, asking: what internal differences enable RL models' superior performance?
 
-#### Add Images
-1. Create an `images` folder in your repository (already created)
-2. Add your figures:
-   - `overview.png` - Main overview figure
-   - `method.png` - Method diagram (optional)
-   - `results.png` - Results visualization (optional)
-3. Update image paths in `index.html` if using different filenames
+## Website
 
-#### Style Customization
-Edit `style.css` to customize:
-- Colors (change `#0366d6` to your preferred color scheme)
-- Fonts
-- Spacing and layout
-- Button styles
+Visit our project website: [https://omara.github.io/reasoning-mechanistic-analysis/](https://omara.github.io/reasoning-mechanistic-analysis/)
 
-### 3. Optional Enhancements
+## Citation
 
-#### Add Google Analytics
-Add this code before `</head>` in `index.html`:
-```html
-<!-- Google Analytics -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=YOUR-GA-ID"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'YOUR-GA-ID');
-</script>
+```bibtex
+@article{rahman2025reasoning,
+  title={Probing the Origins of Reasoning Performance: Representational Quality for Mathematical Problem-Solving in RL vs SFT Finetuned Models},
+  author={Rahman, Antyabha and Gurugubelli, Akshaj and Ankit, Omar and Zhu, Kevin and Panda, Ashwinee and Balwani, Aishwarya},
+  journal={arXiv preprint},
+  year={2025}
+}
 ```
 
-#### Add a Custom Domain
-1. Purchase a domain from a registrar
-2. Add a `CNAME` file to your repository with your domain
-3. Configure DNS settings as per GitHub's instructions
-4. Update the custom domain in repository Settings > Pages
+## Contact
 
-#### Add More Sections
-You can add sections for:
-- Video demos
-- Interactive visualizations
-- Supplementary materials
-- Team information
-- Acknowledgments
+For questions, please contact: aishwarya.balwani@stjude.org
 
-### 4. File Structure
-```
-repository/
-├── index.html          # Main webpage
-├── style.css           # Styling
-├── README.md          # This file
-├── START_HERE.md      # Quick start guide
-├── QUICK_START.md     # 5-minute setup
-├── TEMPLATE_GUIDE.md  # Customization help
-├── ADVANCED_FEATURES.md  # Optional features
-├── PROJECT_SUMMARY.md    # Complete overview
-├── _config.yml        # GitHub Pages config
-├── .gitignore         # Git ignore rules
-└── images/            # Folder for images
-    ├── README.md
-    └── overview.png   # Your figures go here
-```
+## Affiliation
 
-## Documentation Files
+Work conducted with Algoverse AI Research
 
-- **START_HERE.md** - Begin here! Quick overview and setup
-- **QUICK_START.md** - Fast 5-minute setup guide
-- **TEMPLATE_GUIDE.md** - Detailed customization instructions
-- **ADVANCED_FEATURES.md** - Optional enhancements (video, math, dark mode)
-- **PROJECT_SUMMARY.md** - Complete project overview
+---
 
-## Tips
-
-- Keep images optimized (< 1MB for web)
-- Use high-quality screenshots or vector graphics
-- Test your website locally before pushing
-- Check mobile responsiveness
-- Validate HTML/CSS for best compatibility
-
-## Quick Start
-
-1. **Upload to GitHub**: Push all files to your repository
-2. **Enable Pages**: Settings → Pages → Source: main branch, / (root)
-3. **Customize**: Edit `index.html` with your paper details
-4. **Add Images**: Put figures in the `images/` folder
-5. **Share**: Your site will be live at `https://yourusername.github.io/repo-name/`
-
-## Reference
-
-This website template is based on: https://darturi.github.io/shared-em-subspaces/
-
-## License
-
-Feel free to use and modify this template for your own research papers.
+© 2025 Algoverse AI Research. All rights reserved.
 
