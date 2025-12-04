@@ -45,27 +45,27 @@ run_evaluation() {
 }
 
 # --- DeepSeek-Math-7B-Base Evaluation ---
-run_evaluation "gsm8k_deepseek_math_base.py" "./deepseek_math_base_results" "evaluation_results_deepseek-ai_deepseek-math-7b-base_GSM8K_*.csv"
+run_evaluation "./deepseek_math_scripts/gsm8k_deepseek_math_base.py" "./deepseek_math_base_results" "evaluation_results_deepseek-ai_deepseek-math-7b-base_GSM8K_*.csv"
 
 # --- DeepSeek-Math-7B-Instruct Evaluation ---
-run_evaluation "gsm8k_deepseek_math_instruct.py" "./deepseek_math_instruct_results" "evaluation_results_deepseek-ai_deepseek-math-7b-instruct_GSM8K_*.csv"
+run_evaluation "./deepseek_math_scripts/gsm8k_deepseek_math_instruct.py" "./deepseek_math_instruct_results" "evaluation_results_deepseek-ai_deepseek-math-7b-instruct_GSM8K_*.csv"
 
 # --- DeepSeek-Math-7B-RL Evaluation ---
-run_evaluation "gsm8k_deepseek_math_rl.py" "./deepseek_math_rl_results" "evaluation_results_deepseek-ai_deepseek-math-7b-rl_GSM8K_*.csv"
+run_evaluation "./deepseek_math_scripts/gsm8k_deepseek_math_rl.py" "./deepseek_math_rl_results" "evaluation_results_deepseek-ai_deepseek-math-7b-rl_GSM8K_*.csv"
 
 # --- Olmo-3-1025-7B Base Evaluation ---
-run_evaluation "gsm8k_olmo3_base.py" "./olmo3_base_results" "evaluation_results_allenai_Olmo-3-1025-7B_GSM8K_*.csv"
+run_evaluation "./olmo3_scripts/gsm8k_olmo3_base.py" "./olmo3_base_results" "evaluation_results_allenai_Olmo-3-1025-7B_GSM8K_*.csv"
 
 # --- Olmo-3-7B-Think-SFT Evaluation ---
-run_evaluation "gsm8k_olmo3_thinking_sft.py" "./olmo3_thinking_sft_results" "evaluation_results_allenai_Olmo-3-7B-Think-SFT_GSM8K_*.csv"
+run_evaluation "./olmo3_scripts/gsm8k_olmo3_thinking_sft.py" "./olmo3_thinking_sft_results" "evaluation_results_allenai_Olmo-3-7B-Think-SFT_GSM8K_*.csv"
 
 # --- Olmo-3-7B-Think-DPO Evaluation ---
-run_evaluation "gsm8k_olmo3_thinking_dpo.py" "./olmo3_thinking_dpo_results" "evaluation_results_allenai_Olmo-3-7B-Think-DPO_GSM8K_*.csv"
+run_evaluation "./olmo3_scripts/gsm8k_olmo3_thinking_dpo.py" "./olmo3_thinking_dpo_results" "evaluation_results_allenai_Olmo-3-7B-Think-DPO_GSM8K_*.csv"
 
 # --- Olmo-3-7B-Think-RLVR Evaluation ---
-run_evaluation "gsm8k_olmo3_thinking_rlvr.py" "./olmo3_thinking_rlvr_results" "evaluation_results_allenai_Olmo-3-7B-Think_GSM8K_*.csv"
+run_evaluation "./olmo3_scripts/gsm8k_olmo3_thinking_rlvr.py" "./olmo3_thinking_rlvr_results" "evaluation_results_allenai_Olmo-3-7B-Think_GSM8K_*.csv"
 
 # --- Olmo-3-7B-RLZero-Math Evaluation ---
-run_evaluation "gsm8k_olmo3_rl_zero.py" "./olmo3_rl_zero_results" "evaluation_results_allenai_Olmo-3-7B-RLZero-Math_GSM8K_*.csv"
+run_evaluation "./olmo3_scripts/gsm8k_olmo3_rl_zero.py" "./olmo3_rl_zero_results" "evaluation_results_allenai_Olmo-3-7B-RLZero-Math_GSM8K_*.csv"
 
 echo "All evaluations finished."
