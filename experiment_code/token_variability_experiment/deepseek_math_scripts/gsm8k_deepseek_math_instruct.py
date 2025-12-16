@@ -1,16 +1,12 @@
 import csv
 import re
-import argparse
-import time
+import math
+import os
 import math
 from datetime import datetime
-from typing import Dict
 from datasets import load_dataset
 from vllm import LLM, SamplingParams
-import os
 from answer_extraction import extract_last_single_answer
-
-print("Imports loaded successfully!")
 
 # Set Hugging Face cache directory to user's home
 os.environ['HF_HOME'] = os.path.expanduser('~/.cache/huggingface')
@@ -192,7 +188,6 @@ def run_evaluation(model_name: str, dataset, llm: LLM, sampling_params: Sampling
 
 # ============ Main Execution ============
 if __name__ == "__main__":
-    print(f"\n{'#'*60}")
     print(f"# GSM8K Evaluation with vLLM - Instruct")
     print(f"{'#'*60}\n")
     

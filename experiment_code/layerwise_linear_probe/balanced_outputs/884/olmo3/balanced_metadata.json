@@ -1,0 +1,31 @@
+{
+  "intersection_info": {
+    "intersection_size": 1000,
+    "strategy": "intersection_only_no_subsampling",
+    "note": "Class imbalance handled by class_weight='balanced' in training",
+    "n_models": 3
+  },
+  "model_stats": {
+    "Olmo-3-7B-Instruct": {
+      "n_correct": 990,
+      "n_incorrect": 10,
+      "total": 1000,
+      "correct_ratio": 99.0,
+      "incorrect_ratio": 1.0
+    },
+    "Olmo-3-7B-RLZero-Math": {
+      "n_correct": 511,
+      "n_incorrect": 489,
+      "total": 1000,
+      "correct_ratio": 51.1,
+      "incorrect_ratio": 48.9
+    },
+    "Olmo-3-7B-Think": {
+      "n_correct": 999,
+      "n_incorrect": 1,
+      "total": 1000,
+      "correct_ratio": 99.9,
+      "incorrect_ratio": 0.1
+    }
+  }
+}

@@ -1,18 +1,16 @@
 import csv
 import re
 import math
+import os
 from datetime import datetime
 from datasets import load_dataset
 from vllm import LLM, SamplingParams
 from answer_extraction import extract_last_single_answer
-import os
+
 
 # Set Hugging Face cache directory to user's home
 os.environ['HF_HOME'] = os.path.expanduser('~/.cache/huggingface')
 os.environ['HF_TOKEN_PATH'] = os.path.expanduser('~/.cache/huggingface/token')
-
-
-print("Imports loaded successfully!")
 
 # ============ Model Configuration ============
 MODEL_NAME = "allenai/Olmo-3-7B-Think"
@@ -167,7 +165,6 @@ def run_evaluation(model_name: str, dataset, llm: LLM, sampling_params: Sampling
 
 # ============ Main Execution ============
 if __name__ == "__main__":
-    print(f"\n{'#'*60}")
     print(f"# GSM8K Evaluation with vLLM - Olmo-3-7B-Think")
     print(f"{'#'*60}\n")
     

@@ -1,0 +1,42 @@
+# Output directories
+*_*_outputs/
+
+# Large binary files (activations)
+*.npy
+
+
+# Checkpoint files
+checkpoint_*.npz
+
+
+# Figures/plots
+*.png
+*.pdf
+*.svg
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Jupyter notebooks checkpoints
+.ipynb_checkpoints/
+
+# Environment files
+.env
+.venv
+env/
+venv/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db

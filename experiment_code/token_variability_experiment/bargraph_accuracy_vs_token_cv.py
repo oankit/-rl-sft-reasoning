@@ -75,13 +75,9 @@ def load_model_data(model_name: str, csv_directory: str) -> pd.DataFrame | None:
     
     grouped.columns = ['index', 'mean_accuracy', 'output_token_mean', 'output_token_std', 'run_count']
     
-    # Calculate Sample CV (Coefficient of Variation)
+    # CV (with small-sample bias correction)
     grouped['output_token_cv'] = grouped['output_token_std'] / grouped['output_token_mean']
-    
-    # Apply bias correction for small sample sizes
-    grouped['output_token_cv'] = grouped['output_token_cv'] * (1 + 1 / (4 * grouped['run_count']))
-    
-    # Handle edge cases: 0 mean implies 0 variation; infinite values set to 0.
+    grouped['output_token_cv'] *= (1 + 1 / (4 * grouped['run_count']))
     grouped.loc[grouped['output_token_mean'] == 0, 'output_token_cv'] = 0
     grouped['output_token_cv'] = grouped['output_token_cv'].replace([np.inf, -np.inf], 0)
     
@@ -119,19 +115,15 @@ def prepare_bar_data(data_dict: dict[str, pd.DataFrame]) -> pd.DataFrame:
         
         bin_stats.columns = ['accuracy_bin', 'avg_cv', 'std_of_cv', 'count']
         
-        # Calculate Standard Error of the Mean (SEM)
+        # Standard error and 95% CI (t-distribution)
         bin_stats['se_of_cv'] = bin_stats['std_of_cv'] / np.sqrt(bin_stats['count'])
         
-        # Calculate 95% Confidence Interval (CI) using t-distribution.
-        # We use t-distribution instead of normal approximation (1.96) because sample 
-        # sizes per bin vary and are often small (N < 30).
         degrees_of_freedom = bin_stats['count'].values - 1
         
         t_crit = np.full(degrees_of_freedom.shape, np.nan)
         valid_mask = degrees_of_freedom > 0
         if np.any(valid_mask):
-            # ppf(0.975) corresponds to two-tailed 95% confidence
-            t_crit[valid_mask] = stats.t.ppf(0.975, degrees_of_freedom[valid_mask])
+            t_crit[valid_mask] = stats.t.ppf(0.975, degrees_of_freedom[valid_mask])  # two-tailed 95%
             
         bin_stats['ci_95'] = bin_stats['se_of_cv'] * t_crit
         
@@ -163,7 +155,6 @@ def plot_family_metrics(models_config: dict[str, str], data_dict: dict[str, pd.D
     x = np.arange(len(accuracy_bins))
     width = 0.15
     
-    # Center the bars based on the number of models
     num_models = len(models_config)
     start_offset = -((num_models - 1) * width) / 2
 
@@ -171,7 +162,7 @@ def plot_family_metrics(models_config: dict[str, str], data_dict: dict[str, pd.D
         if model_name in data_dict:
             model_data = bar_data[bar_data['model'] == model_name]
             
-            # Reindex to ensure all bins are present
+            # Ensure all bins exist
             model_data = model_data.set_index('accuracy_bin').reindex(accuracy_bins).reset_index()
             model_data = model_data.fillna(0)
             
@@ -180,21 +171,15 @@ def plot_family_metrics(models_config: dict[str, str], data_dict: dict[str, pd.D
                    label=model_name, color=colors[model_name],
                    alpha=0.8, edgecolor='black', linewidth=1.5)
             
-            # Plot error bars representing 95% Confidence Intervals
             ax.errorbar(x + offset, model_data['avg_cv'], 
                         yerr=model_data['ci_95'], fmt='none', 
                         ecolor='black', capsize=5, alpha=0.6, linewidth=1.5)
             
-            # Add sample count (N) on top of each bar
-            # We place the text just above the bar height (avg_cv) rather than the error bar
-            # to ensure it remains visible even when error bars are huge/cut off.
-            # We shift the text slightly to the left to avoid overlapping with the vertical error bar.
+            # Annotate sample counts
             for j, val in enumerate(model_data['avg_cv']):
-                if val > 0:  # Only label bars that exist
+                if val > 0:
                     count = int(model_data['count'].iloc[j])
-                    # Position text slightly above the bar
                     y_pos = val + (y_limit * 0.02)
-                    # Shift x left by 0.04 (approx 1/4 of bar width) to clear the error bar
                     ax.text(x[j] + offset - 0.04, y_pos, f"n={count}", 
                             ha='center', va='bottom', fontsize=8, rotation=90, color='black')
 
@@ -219,12 +204,10 @@ def plot_family_metrics(models_config: dict[str, str], data_dict: dict[str, pd.D
 
 def main() -> None:
     plt.style.use('seaborn-v0_8-paper')
-    base_dir = "."
-    
-    print("=" * 80)
+        
+    base_dir = "./figures"
+    os.makedirs(base_dir, exist_ok=True)
     print("Loading data for all models...")
-    print("=" * 80)
-    
     deepseek_models = {
         'DeepSeek-Math-RL': f'{base_dir}/deepseek_math_rl_results',
         'DeepSeek-Math-Instruct': f'{base_dir}/deepseek_math_instruct_results',
@@ -234,8 +217,7 @@ def main() -> None:
     olmo3_models = {
         "Olmo-3-7B-RL-Zero-Math": f'{base_dir}/olmo3_rl_zero_results',
         "Olmo-3-7B-Think": f'{base_dir}/olmo3_thinking_rlvr_results',
-        "Olmo-3-7B-Think-SFT": f'{base_dir}/olmo3_thinking_sft_results',
-        "Olmo-3-7B-Think-DPO": f'{base_dir}/olmo3_thinking_dpo_results',
+        "Olmo-3-7B-Instruct": f'{base_dir}/olmo3_instruct_results',
         'Olmo-3-Base-7B': f'{base_dir}/olmo3_base_results',
     }
 
@@ -246,11 +228,10 @@ def main() -> None:
     }
 
     olmo3_colors = {
-        "Olmo-3-7B-RL-Zero-Math": '#001433', # Very Dark Navy
-        "Olmo-3-7B-Think": '#003D99',      # Navy Blue (Lightened)
-        "Olmo-3-7B-Think-SFT": '#0052CC',  # Darker Blue
-        "Olmo-3-7B-Think-DPO": '#3385FF',  # Vibrant Medium Blue
-        'Olmo-3-Base-7B': '#B3D9FF',       # Very Light Blue
+        'Olmo-3-7B-RL-Zero-Math': '#001A4D',
+        'Olmo-3-7B-Think': '#0052CC',
+        'Olmo-3-7B-Instruct': '#66A3FF',
+        'Olmo-3-Base-7B': '#CCE5FF',
     }
 
     # Load data
@@ -275,17 +256,11 @@ def main() -> None:
     deepseek_bar_data = prepare_bar_data(deepseek_data)
     olmo3_bar_data = prepare_bar_data(olmo3_data)
 
-    # Calculate global Y limit
-    # We calculate the limit based primarily on the average CV (bar heights) rather than 
-    # the confidence intervals. This prevents single small-sample bins with huge 
-    # error bars (e.g., N=2) from compressing the entire visualization.
-    
+    # Y limit based on max bar height (ignore CI outliers)
     max_avg_deepseek = deepseek_bar_data['avg_cv'].max() if not deepseek_bar_data.empty else 0
     max_avg_olmo3 = olmo3_bar_data['avg_cv'].max() if not olmo3_bar_data.empty else 0
     global_max_avg = max(max_avg_deepseek, max_avg_olmo3)
     
-    # Set limit to accommodate the tallest bar with some headroom (e.g., +60%)
-    # This ensures readable bars even if some huge error bars extend off-chart.
     y_max_limit = global_max_avg * 1.6 if global_max_avg > 0 else 1.0
 
     # Plot DeepSeek
@@ -305,8 +280,8 @@ def main() -> None:
     )
     
     # Save CSVs
-    deepseek_bar_data.to_csv(f'{base_dir}/deepseek_bar_data_cv.csv', index=False)
-    olmo3_bar_data.to_csv(f'{base_dir}/olmo3_bar_data_cv.csv', index=False)
+    deepseek_bar_data.to_csv(f'{base_dir}/figures/deepseek_bar_data_cv.csv', index=False)
+    olmo3_bar_data.to_csv(f'{base_dir}/figures/olmo3_bar_data_cv.csv', index=False)
     print("Bar data saved to CSV files")
 
     # Summary statistics

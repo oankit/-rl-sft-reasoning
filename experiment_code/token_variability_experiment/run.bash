@@ -4,8 +4,12 @@ set -e
 
 # Enabled Flash Attention 3 for Hopper GPUs (H200 is SM 9.0)
 export VLLM_FLASH_ATTN_VERSION=3
+
 export HF_HOME="$HOME/.cache/huggingface"
 export HF_TOKEN_PATH="$HOME/.cache/huggingface/token"
+
+CACHE_DIR="$HOME/.cache/huggingface/hub"
+
 # Ensure the token file exists (create empty if needed)
 mkdir -p "$HOME/.cache/huggingface"
 touch "$HOME/.cache/huggingface/token"
@@ -33,8 +37,7 @@ run_evaluation() {
     mv $csv_pattern "$result_dir/" 2>/dev/null || echo "No CSV files found matching $csv_pattern to move."
     
     echo "Clearing model files..."
-    # Clear Hugging Face Model cache (force root path as per request)
-    CACHE_DIR="$HOME/.cache/huggingface/hub"
+
     if [ -d "$CACHE_DIR" ]; then
         echo "Removing model cache at $CACHE_DIR"
         rm -rf "$CACHE_DIR"
@@ -56,13 +59,10 @@ run_evaluation "./deepseek_math_scripts/gsm8k_deepseek_math_rl.py" "./deepseek_m
 # --- Olmo-3-1025-7B Base Evaluation ---
 run_evaluation "./olmo3_scripts/gsm8k_olmo3_base.py" "./olmo3_base_results" "evaluation_results_allenai_Olmo-3-1025-7B_GSM8K_*.csv"
 
-# --- Olmo-3-7B-Think-SFT Evaluation ---
-run_evaluation "./olmo3_scripts/gsm8k_olmo3_thinking_sft.py" "./olmo3_thinking_sft_results" "evaluation_results_allenai_Olmo-3-7B-Think-SFT_GSM8K_*.csv"
+# --- Olmo-3-1025-7B Instruct Evaluation ---
+run_evaluation "./olmo3_scripts/gsm8k_olmo3_instruct.py" "./olmo3_instruct_results" "evaluation_results_allenai_Olmo-3-1025-7B-Instruct_GSM8K_*.csv"
 
-# --- Olmo-3-7B-Think-DPO Evaluation ---
-run_evaluation "./olmo3_scripts/gsm8k_olmo3_thinking_dpo.py" "./olmo3_thinking_dpo_results" "evaluation_results_allenai_Olmo-3-7B-Think-DPO_GSM8K_*.csv"
-
-# --- Olmo-3-7B-Think-RLVR Evaluation ---
+# --- Olmo-3-7B-Think Evaluation ---
 run_evaluation "./olmo3_scripts/gsm8k_olmo3_thinking_rlvr.py" "./olmo3_thinking_rlvr_results" "evaluation_results_allenai_Olmo-3-7B-Think_GSM8K_*.csv"
 
 # --- Olmo-3-7B-RLZero-Math Evaluation ---

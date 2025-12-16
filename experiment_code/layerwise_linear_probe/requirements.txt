@@ -1,0 +1,54 @@
+# ==============================================================================
+# Parallel Log Probe - Requirements
+# ==============================================================================
+# This file lists all dependencies needed to run the parallel log probe
+# experiments for analyzing model correctness through linear probing.
+#
+# Installation:
+#   pip install -r requirements.txt
+#
+# For CUDA support on aarch64 (GH200), we rely on the system-installed
+# PyTorch which provides CUDA 12.8 support.
+# Do NOT install torch from PyPI as it lacks CUDA support for aarch64.
+# ==============================================================================
+
+# Core Deep Learning Frameworks
+# ------------------------------------------------------------------------------
+# torch  <-- Commented out to use system torch (2.7.0+cuda)
+transformers              # HuggingFace Transformers for pre-trained models
+
+# Data Processing and Scientific Computing
+# ------------------------------------------------------------------------------
+numpy                     # Numerical operations and array handling
+pandas                    # Data manipulation and CSV handling
+
+# Machine Learning
+# ------------------------------------------------------------------------------
+scikit-learn              # Logistic regression probes and metrics
+joblib                    # Parallel processing for probe training
+
+# Visualization
+# ------------------------------------------------------------------------------
+matplotlib                # Plotting and figure generation
+seaborn                   # Statistical visualization and regression plots
+
+# Utilities
+# ------------------------------------------------------------------------------
+tqdm                      # Progress bars for long-running operations
+
+# Text Processing
+# ------------------------------------------------------------------------------
+regex                     # Advanced regex for answer extraction (not std re)
+
+# Optional Dependencies
+# ------------------------------------------------------------------------------
+# vllm>=0.6.0             # vllm should also be installed via system or specific wheel if needed
+transformers>=4.30.0
+flashinfer-python
+
+# ==============================================================================
+# Development Dependencies (optional)
+# ==============================================================================
+# For development and testing, install additional packages:
+#pip install -r requirements-dev.txt
+# ==============================================================================

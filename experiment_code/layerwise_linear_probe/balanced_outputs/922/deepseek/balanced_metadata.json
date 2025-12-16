@@ -1,0 +1,24 @@
+{
+  "intersection_info": {
+    "intersection_size": 1000,
+    "strategy": "intersection_only_no_subsampling",
+    "note": "Class imbalance handled by class_weight='balanced' in training",
+    "n_models": 2
+  },
+  "model_stats": {
+    "deepseek-math-7b-instruct": {
+      "n_correct": 832,
+      "n_incorrect": 168,
+      "total": 1000,
+      "correct_ratio": 83.2,
+      "incorrect_ratio": 16.8
+    },
+    "deepseek-math-7b-rl": {
+      "n_correct": 254,
+      "n_incorrect": 746,
+      "total": 1000,
+      "correct_ratio": 25.4,
+      "incorrect_ratio": 74.6
+    }
+  }
+}
