@@ -68,4 +68,7 @@ run_evaluation "./olmo3_scripts/gsm8k_olmo3_thinking_rlvr.py" "./olmo3_thinking_
 # --- Olmo-3-7B-RLZero-Math Evaluation ---
 run_evaluation "./olmo3_scripts/gsm8k_olmo3_rl_zero.py" "./olmo3_rl_zero_results" "evaluation_results_allenai_Olmo-3-7B-RLZero-Math_GSM8K_*.csv"
 
+# Run the bargraph_accuracy_vs_token_cv.py script
+python3 "./bargraph_accuracy_vs_token_cv.py"
+
 echo "All evaluations finished."

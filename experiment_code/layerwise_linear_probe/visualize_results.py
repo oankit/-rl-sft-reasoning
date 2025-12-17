@@ -24,14 +24,14 @@ from pathlib import Path
 
 BLUE_SHADES = {
     # DeepSeek family (blue hues)
-    # "base": "#A8D5E5",      # lightest
+    "base": "#A8D5E5",      # lightest
     "instruct": "#0072B2",  # medium
     "rl": "#004466",        # darkest
 }
 
 ORANGE_SHADES = {
     # OLMo family (orange/amber hues)
-    # "base": "#FFD480",      # lightest
+    "base": "#FFD480",      # lightest
     "instruct": "#FFAB40",  # light-medium
     # "think-sft": "#E69F00", # medium
     # "think-dpo": "#D55E00", # medium-dark
@@ -65,7 +65,7 @@ def get_model_color(model_name: str) -> ColorType:
         #     return ORANGE_SHADES["think-dpo"]
         # if "think-sft" in name:
         #     return ORANGE_SHADES["think-sft"]
-        if "think" or "rlvr" in name:
+        if "think" in name or "rlvr" in name:
             return ORANGE_SHADES["think"]
         if "instruct" in name:
             return ORANGE_SHADES["instruct"]
