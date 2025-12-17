@@ -6,7 +6,7 @@ Usage:
         --dataset_path q_data/942_1000.csv \
         --output_dir ./942_r1_outputs
 """
-
+from __future__ import annotations
 import argparse
 import atexit
 import gc
@@ -20,7 +20,6 @@ import pandas as pd
 from datetime import datetime, timedelta
 from pathlib import Path
 from vllm import LLM, SamplingParams
-from __future__ import annotations
 from answer_extraction import extract_last_single_answer
 from config import (
     ANSWER_TOLERANCE,

@@ -226,27 +226,31 @@ def main() -> None:
     deepseek_models = {
         'DeepSeek-Math-RL': f'{base_dir}/deepseek_math_rl_results',
         'DeepSeek-Math-Instruct': f'{base_dir}/deepseek_math_instruct_results',
-        'DeepSeek-Math-Base': f'{base_dir}/deepseek_math_base_results'
+        # 'DeepSeek-Math-Base': f'{base_dir}/deepseek_math_base_results'
     }
 
     olmo3_models = {
         "Olmo-3-7B-RL-Zero-Math": f'{base_dir}/olmo3_rl_zero_results',
         "Olmo-3-7B-Think": f'{base_dir}/olmo3_thinking_rlvr_results',
+        "Olmo-3-7B-Thinking-SFT": f'{base_dir}/olmo3_thinking_sft_results',
+        "Olmo-3-7B-Thinking-DPO": f'{base_dir}/olmo3_thinking_dpo_results',
         "Olmo-3-7B-Instruct": f'{base_dir}/olmo3_instruct_results',
-        'Olmo-3-Base-7B': f'{base_dir}/olmo3_base_results',
+        
+        # 'Olmo-3-Base-7B': f'{base_dir}/olmo3_base_results',
     }
 
     deepseek_colors = {
         'DeepSeek-Math-RL': '#ff4900',
         'DeepSeek-Math-Instruct': '#fda102',
-        "DeepSeek-Math-Base": '#fde003'
+        # "DeepSeek-Math-Base": '#fde003'
     }
 
     olmo3_colors = {
-        'Olmo-3-7B-RL-Zero-Math': '#001A4D',
-        'Olmo-3-7B-Think': '#0052CC',
-        'Olmo-3-7B-Instruct': '#66A3FF',
-        'Olmo-3-Base-7B': '#CCE5FF',
+        'Olmo-3-7B-RL-Zero-Math': '#001A4D',  # Darkest navy
+        'Olmo-3-7B-Think': '#003366',          # Dark blue
+        'Olmo-3-7B-Thinking-SFT': '#0066CC',  # Medium blue
+        'Olmo-3-7B-Thinking-DPO': '#3399FF',   # Light blue
+        'Olmo-3-7B-Instruct': '#99CCFF',       # Lighter blue
     }
 
     # Load data

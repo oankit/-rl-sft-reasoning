@@ -24,19 +24,19 @@ from pathlib import Path
 
 BLUE_SHADES = {
     # DeepSeek family (blue hues)
-    "base": "#A8D5E5",      # lightest
+    # "base": "#A8D5E5",      # lightest
     "instruct": "#0072B2",  # medium
     "rl": "#004466",        # darkest
 }
 
 ORANGE_SHADES = {
     # OLMo family (orange/amber hues)
-    "base": "#FFD480",      # lightest
+    # "base": "#FFD480",      # lightest
     "instruct": "#FFAB40",  # light-medium
-    # "think-sft": "#E69F00", # medium
-    # "think-dpo": "#D55E00", # medium-dark
+    "think-sft": "#E69F00", # medium
+    "think-dpo": "#D55E00", # medium-dark
     "think": "#BF4000",     # dark (also used for rlvr)
-    "rlzero": "#8B2500",    # darkest
+    # "rlzero": "#8B2500",    # darkest
 }
 
 # Utility colors
@@ -54,22 +54,22 @@ def get_model_color(model_name: str) -> ColorType:
             return BLUE_SHADES["rl"]
         if "instruct" in name:
             return BLUE_SHADES["instruct"]
-        return BLUE_SHADES["base"]
+        # return BLUE_SHADES["base"]
         
 
     # OLMo family -> orange shades
     if "allenai" in name or "olmo" in name:
-        if "rlzero" in name:
-            return ORANGE_SHADES["rlzero"]
-        # if "think-dpo" in name:
-        #     return ORANGE_SHADES["think-dpo"]
-        # if "think-sft" in name:
-        #     return ORANGE_SHADES["think-sft"]
+        # if "rlzero" in name:
+        #     return ORANGE_SHADES["rlzero"]
+        if "think-dpo" in name:
+            return ORANGE_SHADES["think-dpo"]
+        if "think-sft" in name:
+            return ORANGE_SHADES["think-sft"]
         if "think" in name or "rlvr" in name:
             return ORANGE_SHADES["think"]
         if "instruct" in name:
             return ORANGE_SHADES["instruct"]
-        return ORANGE_SHADES["base"]
+        # return ORANGE_SHADES["base"]
 
     return GREY
 
