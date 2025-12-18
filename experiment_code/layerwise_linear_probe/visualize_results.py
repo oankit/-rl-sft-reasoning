@@ -81,7 +81,7 @@ def plot_layer_performance_regression(results_list: List[dict], output_dir: Path
     """
     sns.set_style("whitegrid")
 
-    fig, ax = plt.subplots(1, 1, figsize=(12, 8))
+    fig, ax = plt.subplots(1, 1, figsize=(15, 10))
     plt.autoscale(enable=True, axis='y')
 
     colors = [get_model_color(results["model_name"]) for results in results_list]
@@ -122,7 +122,7 @@ def plot_layer_performance_regression(results_list: List[dict], output_dir: Path
             color=colors[model_idx] if model_idx < len(colors) else None,
             label=model_short,
             scatter_kws={"alpha": 0.6, "s": 80},
-            line_kws={"linewidth": 3, "zorder": 3},
+            line_kws={"linewidth": 4, "zorder": 3},
             ci=95,
         )
         for col in ax.collections[_before_collections:]:
@@ -138,21 +138,21 @@ def plot_layer_performance_regression(results_list: List[dict], output_dir: Path
 
         model_max_layer = max([lr["layer"] for lr in results["layer_results"]])
         # c = colors[model_idx] if model_idx < len(colors) else None
-        ax.axvline(x=model_max_layer, color='BLACK', linestyle="--", linewidth=1.5, alpha=0.7)
+        ax.axvline(x=model_max_layer, color='BLACK', linestyle="--", linewidth=2.5, alpha=0.7)
 
     ax.axvline(
         x=max_layer,
         color="black",
         linestyle="--",
-        linewidth=1.5,
+        linewidth=2.5,
         alpha=0.7,
         label="Final Layer",
     )
 
-    ax.set_xlabel("Layer", fontsize=16, fontweight="bold")
-    ax.set_ylabel(f"Test {metric_name}", fontsize=16, fontweight="bold")
-    ax.set_title(f"Layer Depth vs {metric_name}", fontsize=18, fontweight="bold")
-    ax.legend(fontsize=12, loc="lower right", framealpha=0.95)
+    ax.set_xlabel("Layer", fontsize=22, fontweight="bold")
+    ax.set_ylabel(f"Test {metric_name}", fontsize=22, fontweight="bold")
+    ax.set_title(f"Layer Depth vs {metric_name}", fontsize=24, fontweight="bold")
+    ax.legend(fontsize=18, loc="lower right", framealpha=0.95)
     ax.grid(True, alpha=0.3, linewidth=0.8)
 
     ax.set_xlim(-1, max_layer + 2)
@@ -164,15 +164,15 @@ def plot_layer_performance_regression(results_list: List[dict], output_dir: Path
     tick_labels = [
         str(int(t)) if t != max_layer else f"  {max_layer}" for t in tick_positions
     ]
-    ax.set_xticklabels(tick_labels, fontsize=12)
+    ax.set_xticklabels(tick_labels, fontsize=16)
 
     ax.set_ylim(0, 1.02)
-    ax.tick_params(axis="y", labelsize=12)
+    ax.tick_params(axis="y", labelsize=18)
     plt.autoscale(enable=True, axis='y')
     plt.tight_layout()
 
     output_path = output_dir / "layer_performance_regression.png"
-    plt.savefig(output_path, dpi=400, bbox_inches="tight")
+    plt.savefig(output_path, dpi=500, bbox_inches="tight")
     print(f"Saved: {output_path}")
     plt.close()
 

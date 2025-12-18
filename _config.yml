@@ -2,9 +2,9 @@
 # This file is optional but can be useful for Jekyll-based customization
 
 # Site settings
-title: Your Paper Title
+title: Probing the Origins of Reasoning Performance: Representational Quality for Mathematical Problem-Solving in RL vs SFT Finetuned Models
 description: Research paper website
-author: Your Name
+author: Antyabha Rahman, Akshaj Gurugubelli, Omar Ankit, Kevin Zhu, Aishwarya Balwani
 
 # Build settings
 markdown: kramdown
