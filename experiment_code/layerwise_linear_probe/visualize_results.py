@@ -20,23 +20,20 @@ from utils import get_model_short_name, load_json
 from pathlib import Path
 
 # Family-based color palettes: shades within a single hue per model family.
-# Darker shades = more training (RL > instruct > base).
-
+# Darker shades = more training (RL > instruct > base)
 BLUE_SHADES = {
-    # DeepSeek family (blue hues)
     # "base": "#A8D5E5",      # lightest
     "instruct": "#0072B2",  # medium
     "rl": "#004466",        # darkest
 }
 
 ORANGE_SHADES = {
-    # OLMo family (orange/amber hues)
     # "base": "#FFD480",      # lightest
     "instruct": "#FFAB40",  # light-medium
     # "think-sft": "#E69F00", # medium
     # "think-dpo": "#D55E00", # medium-dark
-    "think": "#BF4000",     # dark (also used for rlvr)
-    "rlzero": "#8B2500",    # darkest
+    "think": "#BF4000",     # dark
+    # "rlzero": "#8B2500",    # darkest
 }
 
 # Utility colors
@@ -54,22 +51,22 @@ def get_model_color(model_name: str) -> ColorType:
             return BLUE_SHADES["rl"]
         if "instruct" in name:
             return BLUE_SHADES["instruct"]
-        return BLUE_SHADES["base"]
-        
+        # return BLUE_SHADES["base"]
+
 
     # OLMo family -> orange shades
     if "allenai" in name or "olmo" in name:
-        if "rlzero" in name:
-            return ORANGE_SHADES["rlzero"]
+        # if "rlzero" in name:
+        #     return ORANGE_SHADES["rlzero"]
         # if "think-dpo" in name:
         #     return ORANGE_SHADES["think-dpo"]
         # if "think-sft" in name:
         #     return ORANGE_SHADES["think-sft"]
-        if "think" or "rlvr" in name:
+        if "think" in name or "rlvr" in name:
             return ORANGE_SHADES["think"]
         if "instruct" in name:
             return ORANGE_SHADES["instruct"]
-        return ORANGE_SHADES["base"]
+        # return ORANGE_SHADES["base"]
 
     return GREY
 
@@ -138,15 +135,16 @@ def plot_layer_performance_regression(results_list: List[dict], output_dir: Path
         for line in ax.lines[_before_lines:]:
             line.set_zorder(3)
 
+
         model_max_layer = max([lr["layer"] for lr in results["layer_results"]])
-        c = colors[model_idx] if model_idx < len(colors) else None
-        ax.axvline(x=model_max_layer, color=c, linestyle="--", linewidth=1.5, alpha=0.7)
+        # c = colors[model_idx] if model_idx < len(colors) else None
+        ax.axvline(x=model_max_layer, color='BLACK', linestyle="--", linewidth=1.5, alpha=0.7)
 
     ax.axvline(
         x=max_layer,
         color="black",
         linestyle="--",
-        linewidth=2,
+        linewidth=1.5,
         alpha=0.7,
         label="Final Layer",
     )
@@ -160,7 +158,7 @@ def plot_layer_performance_regression(results_list: List[dict], output_dir: Path
     ax.set_xlim(-1, max_layer + 2)
 
     tick_positions = list(range(0, max_layer, 5)) + [max_layer - 1, max_layer]
-    tick_positions = sorted(list(set(tick_positions)))  # remove duplicates and sort
+    tick_positions = sorted(list(set(tick_positions)))
     ax.set_xticks(tick_positions)
 
     tick_labels = [
@@ -418,7 +416,7 @@ def print_summary_statistics(results_list: List[dict]):
 def visualize_results(probe_results_paths: List[str], output_dir: str):
     """
     Main orchestration function to generate all visualization plots.
-    
+
     Args:
         probe_results_paths: List of JSON result file paths.
         output_dir: Destination for generated images.

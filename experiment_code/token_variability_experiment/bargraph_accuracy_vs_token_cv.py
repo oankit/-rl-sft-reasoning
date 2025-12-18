@@ -149,53 +149,68 @@ def plot_family_metrics(models_config: dict[str, str], data_dict: dict[str, pd.D
         y_limit (float): Y-axis limit for consistency across plots.
         base_dir (str): Base directory for saving files.
     """
-    fig, ax = plt.subplots(1, 1, figsize=(12, 8))
+    fig, ax = plt.subplots(1, 1, figsize=(10, 6))
     
     accuracy_bins = ['0-20%', '20-40%', '40-60%', '60-80%', '80-100%']
     x = np.arange(len(accuracy_bins))
-    width = 0.15
     
     num_models = len(models_config)
+    width = 0.22
     start_offset = -((num_models - 1) * width) / 2
 
+    placeholder_height = y_limit * 0.02  # Height for "no data" placeholder bars
+    
     for i, model_name in enumerate(models_config.keys()):
         if model_name in data_dict:
             model_data = bar_data[bar_data['model'] == model_name]
             
-            # Ensure all bins exist
             model_data = model_data.set_index('accuracy_bin').reindex(accuracy_bins).reset_index()
             model_data = model_data.fillna(0)
             
             offset = start_offset + (i * width)
-            ax.bar(x + offset, model_data['avg_cv'], width, 
+            
+            # Separate data into bins with results and bins without
+            has_data = model_data['count'] > 0
+            
+            # Plot bars with data
+            ax.bar(x[has_data] + offset, model_data.loc[has_data, 'avg_cv'], width, 
                    label=model_name, color=colors[model_name],
-                   alpha=0.8, edgecolor='black', linewidth=1.5)
+                   alpha=0.85, edgecolor='black', linewidth=1.2)
             
-            ax.errorbar(x + offset, model_data['avg_cv'], 
-                        yerr=model_data['ci_95'], fmt='none', 
-                        ecolor='black', capsize=5, alpha=0.6, linewidth=1.5)
+            # Plot placeholder bars for missing data (grey with hatch pattern)
+            if (~has_data).any():
+                ax.bar(x[~has_data] + offset, placeholder_height, width,
+                       color='#E0E0E0', alpha=0.6, edgecolor='#888888', 
+                       linewidth=1.0, hatch='///')
             
-            # Annotate sample counts
+            ax.errorbar(x[has_data] + offset, model_data.loc[has_data, 'avg_cv'], 
+                        yerr=model_data.loc[has_data, 'ci_95'], fmt='none', 
+                        ecolor='black', capsize=4, alpha=0.6, linewidth=1.2)
+            
             for j, val in enumerate(model_data['avg_cv']):
-                if val > 0:
-                    count = int(model_data['count'].iloc[j])
+                count = int(model_data['count'].iloc[j])
+                if count > 0:
                     y_pos = val + (y_limit * 0.02)
-                    ax.text(x[j] + offset - 0.04, y_pos, f"n={count}", 
-                            ha='center', va='bottom', fontsize=8, rotation=90, color='black')
+                    ax.text(x[j] + offset - 0.03, y_pos, f"n={count}", 
+                            ha='center', va='bottom', fontsize=7, rotation=90, color='black')
+                else:
+                    # Label for no-data placeholder
+                    ax.text(x[j] + offset, placeholder_height + (y_limit * 0.01), "N/A", 
+                            ha='center', va='bottom', fontsize=7, rotation=90, color='#666666')
 
-    ax.set_xlabel('Accuracy Range', fontsize=18, fontweight='bold')
-    ax.set_ylabel('Average CV (Bias Corrected)', fontsize=18, fontweight='bold')
-    ax.set_title(f"{title}\n(Error Bars: 95% CI of the Mean)", fontsize=20, fontweight='bold')
+    ax.set_xlabel('Accuracy Range', fontsize=12, fontweight='bold')
+    ax.set_ylabel('Average CV (Bias Corrected)', fontsize=14, fontweight='bold')
+    ax.set_title(title, fontsize=14, fontweight='bold')
     ax.set_xticks(x)
     
-    ax.set_xticklabels(accuracy_bins, rotation=0, fontsize=16)
+    ax.set_xticklabels(accuracy_bins, rotation=0, fontsize=12)
     
     ax.set_ylim(0, y_limit)
-    ax.tick_params(axis='y', labelsize=16)
-    ax.legend(fontsize=16, loc='upper right')
+    ax.tick_params(axis='y', labelsize=12)
+    ax.legend(fontsize=10, loc='upper right')
     ax.grid(True, alpha=0.3, axis='y')
 
-    fig.tight_layout()
+    plt.subplots_adjust(left=0.1, right=0.95, top=0.92, bottom=0.12)
     
     output_path = os.path.join(base_dir, output_filename)
     fig.savefig(output_path, dpi=500, bbox_inches='tight')
@@ -205,33 +220,37 @@ def plot_family_metrics(models_config: dict[str, str], data_dict: dict[str, pd.D
 def main() -> None:
     plt.style.use('seaborn-v0_8-paper')
         
-    base_dir = "./figures"
+    base_dir = "./"
     os.makedirs(base_dir, exist_ok=True)
     print("Loading data for all models...")
     deepseek_models = {
         'DeepSeek-Math-RL': f'{base_dir}/deepseek_math_rl_results',
         'DeepSeek-Math-Instruct': f'{base_dir}/deepseek_math_instruct_results',
-        'DeepSeek-Math-Base': f'{base_dir}/deepseek_math_base_results'
+        # 'DeepSeek-Math-Base': f'{base_dir}/deepseek_math_base_results'
     }
 
     olmo3_models = {
         "Olmo-3-7B-RL-Zero-Math": f'{base_dir}/olmo3_rl_zero_results',
         "Olmo-3-7B-Think": f'{base_dir}/olmo3_thinking_rlvr_results',
+        "Olmo-3-7B-Thinking-SFT": f'{base_dir}/olmo3_thinking_sft_results',
+        "Olmo-3-7B-Thinking-DPO": f'{base_dir}/olmo3_thinking_dpo_results',
         "Olmo-3-7B-Instruct": f'{base_dir}/olmo3_instruct_results',
-        'Olmo-3-Base-7B': f'{base_dir}/olmo3_base_results',
+        
+        # 'Olmo-3-Base-7B': f'{base_dir}/olmo3_base_results',
     }
 
     deepseek_colors = {
         'DeepSeek-Math-RL': '#ff4900',
         'DeepSeek-Math-Instruct': '#fda102',
-        "DeepSeek-Math-Base": '#fde003'
+        # "DeepSeek-Math-Base": '#fde003'
     }
 
     olmo3_colors = {
-        'Olmo-3-7B-RL-Zero-Math': '#001A4D',
-        'Olmo-3-7B-Think': '#0052CC',
-        'Olmo-3-7B-Instruct': '#66A3FF',
-        'Olmo-3-Base-7B': '#CCE5FF',
+        'Olmo-3-7B-RL-Zero-Math': '#001A4D',  # Darkest navy
+        'Olmo-3-7B-Think': '#003366',          # Dark blue
+        'Olmo-3-7B-Thinking-SFT': '#0066CC',  # Medium blue
+        'Olmo-3-7B-Thinking-DPO': '#3399FF',   # Light blue
+        'Olmo-3-7B-Instruct': '#99CCFF',       # Lighter blue
     }
 
     # Load data
@@ -263,11 +282,12 @@ def main() -> None:
     
     y_max_limit = global_max_avg * 1.6 if global_max_avg > 0 else 1.0
 
+    os.makedirs(f'{base_dir}/figures', exist_ok=True)
     # Plot DeepSeek
     plot_family_metrics(
         deepseek_models, deepseek_data, deepseek_bar_data, deepseek_colors,
         'DeepSeek-Math Models: Average Output Token CV by Accuracy Range',
-        'bargraph_deepseek_accuracy_vs_token_cv.png',
+        './figures/bargraph_deepseek_accuracy_vs_token_cv.png',
         y_max_limit, base_dir
     )
 
@@ -275,7 +295,7 @@ def main() -> None:
     plot_family_metrics(
         olmo3_models, olmo3_data, olmo3_bar_data, olmo3_colors,
         'Olmo3 Models: Average Output Token CV by Accuracy Range',
-        'bargraph_olmo3_accuracy_vs_token_cv.png',
+        './figures/bargraph_olmo3_accuracy_vs_token_cv.png',
         y_max_limit, base_dir
     )
     
