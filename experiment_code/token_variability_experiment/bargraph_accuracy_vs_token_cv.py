@@ -15,9 +15,9 @@ import os
 def load_model_data(model_name: str, csv_directory: str) -> pd.DataFrame | None:
     """
     Load and process data for a specific model from a directory of CSV files.
-    
+
     Aggregates data across multiple runs (CSV files), calculates mean accuracy,
-    output token mean, output token standard deviation, and the coefficient of 
+    output token mean, output token standard deviation, and the coefficient of
     variation (CV) for output tokens per question.
 
     Args:
@@ -30,21 +30,21 @@ def load_model_data(model_name: str, csv_directory: str) -> pd.DataFrame | None:
         or None if no valid data is found.
     """
     print(f"\nLoading data for {model_name}...")
-    
-    csv_files = glob.glob(f"{csv_directory}/*.csv") 
-    
+
+    csv_files = glob.glob(f"{csv_directory}/*.csv")
+
     if not csv_files:
         print(f"No CSV files found in {csv_directory}")
         return None
-    
+
     print(f"Found {len(csv_files)} CSV files for {model_name}")
-    
+
     csv_files.sort()
     all_data: list[pd.DataFrame] = []
-    
+
     processed_files = 0
     skipped_files = 0
-    
+
     for csv_file in csv_files:
         try:
             df = pd.read_csv(csv_file)
@@ -55,81 +55,81 @@ def load_model_data(model_name: str, csv_directory: str) -> pd.DataFrame | None:
                 skipped_files += 1
         except (pd.errors.EmptyDataError, pd.errors.ParserError):
             skipped_files += 1
-    
+
     if not all_data:
         print(f"No valid data files found in {csv_directory}")
         return None
-        
+
     if skipped_files > 0:
         print(f"Skipped {skipped_files} empty or invalid files")
-    
+
     combined = pd.concat(all_data, keys=range(len(all_data)))
     combined = combined.reset_index(level=0).rename(columns={'level_0': 'run'})
-    
+
     print(f"Processed {processed_files} files")
-    
+
     grouped = combined.groupby('index').agg({
         'is_correct': 'mean',
         'output_tokens': ['mean', 'std', 'count']
     }).reset_index()
-    
+
     grouped.columns = ['index', 'mean_accuracy', 'output_token_mean', 'output_token_std', 'run_count']
-    
+
     # CV (with small-sample bias correction)
     grouped['output_token_cv'] = grouped['output_token_std'] / grouped['output_token_mean']
     grouped['output_token_cv'] *= (1 + 1 / (4 * grouped['run_count']))
     grouped.loc[grouped['output_token_mean'] == 0, 'output_token_cv'] = 0
     grouped['output_token_cv'] = grouped['output_token_cv'].replace([np.inf, -np.inf], 0)
-    
+
     print(f"\nMetrics for {model_name}:")
     print(f"  Mean accuracy range: {grouped['mean_accuracy'].min():.2f} - {grouped['mean_accuracy'].max():.2f}")
     print(f"  Output token CV range: {grouped['output_token_cv'].min():.3f} - {grouped['output_token_cv'].max():.3f}")
-    
+
     return grouped
 
 def prepare_bar_data(data_dict: dict[str, pd.DataFrame]) -> pd.DataFrame:
     """
     Prepare data for bar graphs by binning accuracy and calculating average CV.
-    
+
     Groups the data into accuracy bins (0-20%, 20-40%, etc.) and calculates
     the mean, standard deviation, count, and standard error of the Output Token CV
     for each bin.
 
     Args:
-        data_dict (dict): A dictionary mapping model names to their corresponding 
+        data_dict (dict): A dictionary mapping model names to their corresponding
                           metrics DataFrames.
 
     Returns:
         pd.DataFrame: A combined DataFrame containing bin statistics for all models.
     """
     results: list[pd.DataFrame] = []
-    
+
     for model_name, df in data_dict.items():
         bins = [0, 0.2, 0.4, 0.6, 0.8, 1.0]
         labels = ['0-20%', '20-40%', '40-60%', '60-80%', '80-100%']
         df['accuracy_bin'] = pd.cut(df['mean_accuracy'], bins=bins, labels=labels, include_lowest=True)
-        
+
         bin_stats = df.groupby('accuracy_bin', observed=True).agg({
             'output_token_cv': ['mean', 'std', 'count']
         }).reset_index()
-        
+
         bin_stats.columns = ['accuracy_bin', 'avg_cv', 'std_of_cv', 'count']
-        
+
         # Standard error and 95% CI (t-distribution)
         bin_stats['se_of_cv'] = bin_stats['std_of_cv'] / np.sqrt(bin_stats['count'])
-        
+
         degrees_of_freedom = bin_stats['count'].values - 1
-        
+
         t_crit = np.full(degrees_of_freedom.shape, np.nan)
         valid_mask = degrees_of_freedom > 0
         if np.any(valid_mask):
             t_crit[valid_mask] = stats.t.ppf(0.975, degrees_of_freedom[valid_mask])  # two-tailed 95%
-            
+
         bin_stats['ci_95'] = bin_stats['se_of_cv'] * t_crit
-        
+
         bin_stats['model'] = model_name
         results.append(bin_stats)
-    
+
     if not results:
         return pd.DataFrame(columns=['accuracy_bin', 'avg_cv', 'std_of_cv', 'count', 'se_of_cv', 'ci_95', 'model'])
 
@@ -150,68 +150,68 @@ def plot_family_metrics(models_config: dict[str, str], data_dict: dict[str, pd.D
         base_dir (str): Base directory for saving files.
     """
     fig, ax = plt.subplots(1, 1, figsize=(10, 6))
-    
+
     accuracy_bins = ['0-20%', '20-40%', '40-60%', '60-80%', '80-100%']
     x = np.arange(len(accuracy_bins))
-    
+
     num_models = len(models_config)
     width = 0.22
     start_offset = -((num_models - 1) * width) / 2
 
     placeholder_height = y_limit * 0.02  # Height for "no data" placeholder bars
-    
+
     for i, model_name in enumerate(models_config.keys()):
         if model_name in data_dict:
             model_data = bar_data[bar_data['model'] == model_name]
-            
+
             model_data = model_data.set_index('accuracy_bin').reindex(accuracy_bins).reset_index()
             model_data = model_data.fillna(0)
-            
+
             offset = start_offset + (i * width)
-            
+
             # Separate data into bins with results and bins without
             has_data = model_data['count'] > 0
-            
+
             # Plot bars with data
-            ax.bar(x[has_data] + offset, model_data.loc[has_data, 'avg_cv'], width, 
+            ax.bar(x[has_data] + offset, model_data.loc[has_data, 'avg_cv'], width,
                    label=model_name, color=colors[model_name],
                    alpha=0.85, edgecolor='black', linewidth=1.2)
-            
+
             # Plot placeholder bars for missing data (grey with hatch pattern)
             if (~has_data).any():
                 ax.bar(x[~has_data] + offset, placeholder_height, width,
-                       color='#E0E0E0', alpha=0.6, edgecolor='#888888', 
+                       color='#E0E0E0', alpha=0.6, edgecolor='#888888',
                        linewidth=1.0, hatch='///')
-            
-            ax.errorbar(x[has_data] + offset, model_data.loc[has_data, 'avg_cv'], 
-                        yerr=model_data.loc[has_data, 'ci_95'], fmt='none', 
+
+            ax.errorbar(x[has_data] + offset, model_data.loc[has_data, 'avg_cv'],
+                        yerr=model_data.loc[has_data, 'ci_95'], fmt='none',
                         ecolor='black', capsize=4, alpha=0.6, linewidth=1.2)
-            
+
             for j, val in enumerate(model_data['avg_cv']):
                 count = int(model_data['count'].iloc[j])
                 if count > 0:
                     y_pos = val + (y_limit * 0.02)
-                    ax.text(x[j] + offset - 0.03, y_pos, f"n={count}", 
-                            ha='center', va='bottom', fontsize=7, rotation=90, color='black')
+                    ax.text(x[j] + offset - 0.03, y_pos, f"n={count}",
+                            ha='center', va='bottom', fontsize=10, rotation=90, color='black')
                 else:
                     # Label for no-data placeholder
-                    ax.text(x[j] + offset, placeholder_height + (y_limit * 0.01), "N/A", 
-                            ha='center', va='bottom', fontsize=7, rotation=90, color='#666666')
+                    ax.text(x[j] + offset, placeholder_height + (y_limit * 0.01), "N/A",
+                            ha='center', va='bottom', fontsize=9, rotation=90, color='#666666')
 
     ax.set_xlabel('Accuracy Range', fontsize=12, fontweight='bold')
     ax.set_ylabel('Average CV (Bias Corrected)', fontsize=14, fontweight='bold')
     ax.set_title(title, fontsize=14, fontweight='bold')
     ax.set_xticks(x)
-    
+
     ax.set_xticklabels(accuracy_bins, rotation=0, fontsize=12)
-    
+
     ax.set_ylim(0, y_limit)
     ax.tick_params(axis='y', labelsize=12)
     ax.legend(fontsize=10, loc='upper right')
     ax.grid(True, alpha=0.3, axis='y')
 
     plt.subplots_adjust(left=0.1, right=0.95, top=0.92, bottom=0.12)
-    
+
     output_path = os.path.join(base_dir, output_filename)
     fig.savefig(output_path, dpi=500, bbox_inches='tight')
     print(f"\nPlot saved to: {output_path}")
@@ -219,7 +219,7 @@ def plot_family_metrics(models_config: dict[str, str], data_dict: dict[str, pd.D
 
 def main() -> None:
     plt.style.use('seaborn-v0_8-paper')
-        
+
     base_dir = "./"
     os.makedirs(base_dir, exist_ok=True)
     print("Loading data for all models...")
@@ -230,12 +230,11 @@ def main() -> None:
     }
 
     olmo3_models = {
-        "Olmo-3-7B-RL-Zero-Math": f'{base_dir}/olmo3_rl_zero_results',
+        # "Olmo-3-7B-RL-Zero-Math": f'{base_dir}/olmo3_rl_zero_results',
         "Olmo-3-7B-Think": f'{base_dir}/olmo3_thinking_rlvr_results',
-        "Olmo-3-7B-Thinking-SFT": f'{base_dir}/olmo3_thinking_sft_results',
-        "Olmo-3-7B-Thinking-DPO": f'{base_dir}/olmo3_thinking_dpo_results',
+        # "Olmo-3-7B-Thinking-SFT": f'{base_dir}/olmo3_thinking_sft_results',
+        # "Olmo-3-7B-Thinking-DPO": f'{base_dir}/olmo3_thinking_dpo_results',
         "Olmo-3-7B-Instruct": f'{base_dir}/olmo3_instruct_results',
-        
         # 'Olmo-3-Base-7B': f'{base_dir}/olmo3_base_results',
     }
 
@@ -246,10 +245,10 @@ def main() -> None:
     }
 
     olmo3_colors = {
-        'Olmo-3-7B-RL-Zero-Math': '#001A4D',  # Darkest navy
+        # 'Olmo-3-7B-RL-Zero-Math': '#001A4D',  # Darkest navy
         'Olmo-3-7B-Think': '#003366',          # Dark blue
-        'Olmo-3-7B-Thinking-SFT': '#0066CC',  # Medium blue
-        'Olmo-3-7B-Thinking-DPO': '#3399FF',   # Light blue
+        # 'Olmo-3-7B-Thinking-SFT': '#0066CC',  # Medium blue
+        # 'Olmo-3-7B-Thinking-DPO': '#3399FF',   # Light blue
         'Olmo-3-7B-Instruct': '#99CCFF',       # Lighter blue
     }
 
@@ -279,7 +278,7 @@ def main() -> None:
     max_avg_deepseek = deepseek_bar_data['avg_cv'].max() if not deepseek_bar_data.empty else 0
     max_avg_olmo3 = olmo3_bar_data['avg_cv'].max() if not olmo3_bar_data.empty else 0
     global_max_avg = max(max_avg_deepseek, max_avg_olmo3)
-    
+
     y_max_limit = global_max_avg * 1.6 if global_max_avg > 0 else 1.0
 
     os.makedirs(f'{base_dir}/figures', exist_ok=True)
@@ -298,7 +297,7 @@ def main() -> None:
         './figures/bargraph_olmo3_accuracy_vs_token_cv.png',
         y_max_limit, base_dir
     )
-    
+
     # Save CSVs
     deepseek_bar_data.to_csv(f'{base_dir}/figures/deepseek_bar_data_cv.csv', index=False)
     olmo3_bar_data.to_csv(f'{base_dir}/figures/olmo3_bar_data_cv.csv', index=False)
@@ -315,7 +314,7 @@ def main() -> None:
     print("\n" + "-" * 80)
     print("OLMO3 MODELS:")
     print(olmo3_bar_data.to_string(index=False))
-    
+
     plt.show()
 
 if __name__ == "__main__":
