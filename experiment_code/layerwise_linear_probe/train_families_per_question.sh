@@ -78,8 +78,8 @@ for QID in "${QUESTIONS[@]}"; do
         # "${BASE_DIR}/${QID}_1000_olmo3_base_outputs/completions_Olmo-3-1025-7B.json"
         "${BASE_DIR}/${QID}_1000_olmo3_instruct_outputs/completions_Olmo-3-7B-Instruct.json"
         # "${BASE_DIR}/${QID}_1000_olmo3_rl_zero_outputs/completions_Olmo-3-7B-RLZero-Math.json"
-        "${BASE_DIR}/${QID}_1000_olmo3_thinking_dpo_outputs/completions_Olmo-3-7B-Think-DPO.json"
-        "${BASE_DIR}/${QID}_1000_olmo3_thinking_sft_outputs/completions_Olmo-3-7B-Think-SFT.json"
+        # "${BASE_DIR}/${QID}_1000_olmo3_thinking_dpo_outputs/completions_Olmo-3-7B-Think-DPO.json"
+        # "${BASE_DIR}/${QID}_1000_olmo3_thinking_sft_outputs/completions_Olmo-3-7B-Think-SFT.json"
         "${BASE_DIR}/${QID}_1000_olmo3_thinking_rlvr_outputs/completions_Olmo-3-7B-Think.json"   
     )
 
