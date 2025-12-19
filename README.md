@@ -40,6 +40,8 @@ The experiment code is located in the `experiment_code` directory. We use `uv` f
 
 ## Usage
 
+We primarily use `uv run` to run python files in scripts as it uses the dependencies installed.
+
 ### 1. Layer-wise Linear Probes
 
 This experiment investigates the linear separability of internal representations across model layers. All scripts are located in `experiment_code/layerwise_linear_probe`.
@@ -47,7 +49,7 @@ This experiment investigates the linear separability of internal representations
 **Step 1: Data Generation**
 Generate synthetic math questions for the probing task.
 ```bash
-python experiment_code/layerwise_linear_probe/question_generate.py
+uv run experiment_code/layerwise_linear_probe/question_generate.py
 ```
 
 **Step 2: Generate Completions**
@@ -66,7 +68,7 @@ bash experiment_code/layerwise_linear_probe/extract_activation_script.sh
 Train linear probes on the extracted activations to predict correct/incorrect reasoning steps.
 ```bash
 # Balance the dataset first
-python experiment_code/layerwise_linear_probe/balance_probe_data_flexible.py
+uv run experiment_code/layerwise_linear_probe/balance_probe_data_flexible.py
 
 # Train probes across model families
 bash experiment_code/layerwise_linear_probe/train_families_per_question.sh
@@ -89,7 +91,7 @@ This experiment analyzes the variability of output tokens to understand generati
 *   **Individual Scripts**: Specific scripts for models (e.g., DeepSeek, Olmo) are in folders like `deepseek_math_scripts/` and `olmo3_scripts/`.
 *   **Visualizations**: Generate bar graphs of accuracy vs. token coefficient of variation.
     ```bash
-    python experiment_code/token_variability_experiment/bargraph_accuracy_vs_token_cv.py
+    uv run experiment_code/token_variability_experiment/bargraph_accuracy_vs_token_cv.py
     ```
 
 ## Citation
