@@ -48,11 +48,11 @@
                 </svg>
                 GitHub
             </a>
-            <a href="#" class="nav-button">
+            <a href="https://openreview.net/forum?id=6bdhxhvBLd&referrer=%5BAuthor%20Console%5D(%2Fgroup%3Fid%3DAAAI.org%2F2026%2FWorkshop%2FXAI4Science%2FAuthors%23your-submissions)" class="nav-button">
                 <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path d="M14 2H6C4.9 2 4 2.9 4 4v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"></path>
                 </svg>
-                Paper (Coming Soon)
+                Paper
             </a>
             <a href="https://algoverseairesearch.org/" class="nav-button">
                 Algoverse AI
@@ -61,42 +61,14 @@
     </header>
 
     <div class="figure-section">
-        <img src="images/result.png" alt="Accuracy Drop (AD) by model showing differential layer sensitivity">
+        <img src="images/slides.png" alt="Experimental Setup and Results">
     </div>
 
     <div class="container">
         <h2 class="abstract-title">Abstract</h2>
         <div class="content">
             <p>
-                Large reasoning models trained via reinforcement learning (RL) substantially outperform their supervised counterparts
-                on tasks requiring logic and mathematical reasoning, yet the mechanistic basis for these improvements remains unclear. 
-                We investigate this phenomenon through an integrated behavioral-mechanistic analysis of mathematical reasoning, asking: 
-                what internal differences enable RL models' superior performance? We present three converging lines of evidence that 
-                RL models develop higher-quality reasoning representations earlier in their networks.
-            </p>
-            <p>
-                First, linear probes trained on layer-wise hidden states reveal that RL models achieve an average probe accuracy of 
-                82-87% compared to 71-76% for instruction-tuned models, representing an 11 percentage point improvement. Higher accuracy 
-                in predicting answer correctness, with this capability emerging earlier than in base models—suggesting RL training produces 
-                more structured, reasoning-relevant representations throughout the network. Second, soft-mean ablation studies show RL models 
-                exhibit greater layer sensitivity overall, with impact increasing progressively toward deeper layers (r=0.47 vs r=-0.11 
-                for instruction-tuned), confirming RL training creates hierarchical reasoning architecture with both earlier engagement 
-                and deeper concentration.
-            </p>
-            <p>
-                These representational differences manifest behaviorally in how models allocate computational resources during generation. 
-                Analyzing within-problem token generation variability across 50 responses per problem, we find that Qwen3-Thinking maintains 
-                remarkably consistent token usage (CV = 0.25-0.33) across all difficulty levels while achieving 97.7% accuracy, suggesting 
-                its superior representations enable efficient, reliable solution paths. In contrast, DeepSeek-Math models exhibit elevated 
-                variability specifically at capability boundaries (CV > 0.8 at 20-60% accuracy), indicating adaptive computational effort 
-                where problems strain model capacity—yet DeepSeek's RL and supervised variants show nearly identical variability profiles, 
-                suggesting current reward structures may not fully exploit the potential for adaptive token allocation.
-            </p>
-            <p>
-                Together, these findings suggest that RL training fundamentally restructures how models represent and process reasoning 
-                problems, building more robust and accessible reasoning representations. This mechanistic understanding provides actionable 
-                insights for designing more reliable reasoning systems and highlights the value of probing internal representations to 
-                understand capability improvements.
+                Large reasoning models trained via reinforcement learning (RL) have been increasingly shown to outperform their supervised fine-tuned (SFT) counterparts on mathematical reasoning tasks; yet, the mechanistic basis for this advantage remains unclear. We therefore ask: what internal representational differences enable RL models’ superior performance? Our work presents two converging lines of evidence. First, linear probes trained on layer-wise hidden states reveal that RL models tend to achieve higher accuracy in predicting answer correctness compared to SFT models, indicating more linearly separable and structured representations. Second, mean ablation studies show that RL models develop a hierarchical architecture where deeper layers become progressively more critical, whereas SFT models distribute importance uniformly across layers. Together, these findings demonstrate that RL training fundamentally restructures how models represent and process reasoning problems. Finally, we analyze token-count variability under repeated sampling across problems to assess adaptive compute allocation. While we observe higher variability in some RL-tuned models than in their SFT counterparts, we see strong consistency in others, suggesting that token allocation may depend more on the overall training pipeline than on RL versus SFT alone. We believe this token-allocation variability reveals the spread of plausible on-policy reasoning, highlighting which models exhibit stable policies versus those that are under-determined, potentially non-identifiable solution behaviour.
             </p>
         </div>
     </div>
