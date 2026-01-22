@@ -94,6 +94,20 @@ This experiment analyzes the variability of output tokens to understand generati
     uv run experiment_code/token_variability_experiment/bargraph_accuracy_vs_token_cv.py
     ```
 
+### 3. Layerwise Ablation
+
+This implements systematic activation patching to investigate the criticality of each layer in DeepSeek-Math models for mathematical reasoning capabilities.
+
+*   **Run Experiments**:
+    ``` bash
+    uv run experiment_code/layerwise_ablation/main.py
+    ```
+
+*   **Visualizations**:
+    ```bash
+    uv run experiment_code/layerwise_ablation/visualizaiton.py
+    ```
+
 ## Citation
 
 If you find this work useful, please cite our paper:
