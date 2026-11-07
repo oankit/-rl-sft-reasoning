@@ -3,7 +3,9 @@
 
 ## Abstract
 
-Large reasoning models trained via reinforcement learning (RL) substantially outperform their supervised counterparts on tasks requiring logic and mathematical reasoning, yet the mechanistic basis for these improvements remains unclear. We investigate this phenomenon through an integrated behavioral-mechanistic analysis of mathematical reasoning, asking: *what internal differences enable RL models' improved reasoning capabilities?*
+Large language models trained with reinforcement learning (RL) to reason step by step have been increasingly shown to outperform their supervised fine-tuned (SFT) counterparts on mathematical reasoning tasks. Yet the mechanistic basis for this improvement remains unclear. We therefore ask, *what internal representational differences enable RL-trained reasoning language models to reason better?* Our work presents two primary lines of evidence: First, layer-wise linear probes tend to predict answer correctness more accurately in RL-trained reasoning language models than in instruction-tuned models on synthetic math problems, although output length alone matches the DeepSeek-Math-RL probe on two templates. Second, mean ablation studies suggest that accuracy drop rises with layer depth in DeepSeek-Math-RL but not in DeepSeek-Math-Instruct. Finally, we analyse token-count variability across accuracy bins for RL-trained reasoning language models and instruction-tuned models to measure whether token counts vary more on harder problems. Token counts tend to vary more on lower-accuracy problems, although in DeepSeek-Math-Instruct only with truncated responses included. At high accuracy, we observe lower variability in DeepSeek-Math-RL than in DeepSeek-Math-Instruct, and we observe higher variability in Olmo-3-Think than in Olmo-3-Instruct.
+
+This is the abstract of version 2, which corrects [arXiv:2607.26119v1](https://arxiv.org/abs/2607.26119). The Correction Note in the paper lists the main changes.
 
 ## Authors
 
