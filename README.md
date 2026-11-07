@@ -160,10 +160,10 @@ python tokvar_paper_numbers.py
 python answer_accuracy.py
 python trivial_baseline.py
 python probe_paper_numbers.py
-python make_fig2_rerun.py
-python make_probe_figs_rerun.py
+python make_vector_figs.py make_fig2_rerun.py
+python make_vector_figs.py make_probe_figs_rerun.py
 ```
-Tables go to `analysis/out`, and figures go to `correction_rerun/figures_rerun`. `tokvar_paper_numbers.py` asserts the paper's DeepSeek-Math-RL values for the 20-40% bin, so a new run with different values stops there. The confidence bands in the probe figures are bootstrapped without a seed, so they change slightly between runs. The fitted lines and points do not.
+Tables go to `analysis/out`, and figures go to `correction_rerun/figures_rerun`. `tokvar_paper_numbers.py` asserts the paper's DeepSeek-Math-RL values for the 20-40% bin, so a new run with different values stops there. `make_vector_figs.py` saves each figure as a PNG and a PDF and fixes the seed of the probe figures' confidence bands, so these figures match `final_results/figures`.
 
 ## Citation
 
