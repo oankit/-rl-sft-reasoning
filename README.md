@@ -108,6 +108,59 @@ This implements systematic activation patching to investigate the criticality of
     uv run experiment_code/layerwise_ablation/visualizaiton.py
     ```
 
+### 4. Correction Rerun (Version 2)
+
+Version 2 of the paper reruns the probing and token-count experiments with corrected code. Sections 1 and 2 above describe the version 1 runs. The layer-wise ablation experiment was not rerun.
+
+The rerun results are not in this repository. The `*_results` and `balanced_outputs` directories hold the version 1 results.
+
+**Step 1: Generate on a GPU**
+Follow [`experiment_code/correction_rerun/pod/README.md`](experiment_code/correction_rerun/pod/README.md). `run_all.sh full` runs token variability, probe completions, and activation extraction for all four models. `run_part2.sh` then extracts DeepSeek-Math-RL activations at the final "The answer is:". The guide ends with the results in `results/full` and `results/part2`.
+
+**Step 2: Train the probes**
+Run `probe_eval.py` on each extraction directory. The analysis expects these outputs, where `<template>` is the template ID and `<tag>` is the model tag from the directory name:
+
+| Output prefix | Flags | Model tags |
+|---|---|---|
+| `probe_eval_bal/<template>_1000_<tag>_tol1_all_bal` | `--scale --balance` | `deepseek_instruct`, `olmo3_instruct` |
+| `probe_eval_results/<template>_1000_<tag>_tol1_all` | `--scale` | `deepseek_instruct`, `olmo3_instruct` |
+| `probe_eval_part2/<template>_1000_<tag>_tol1_all_bal` | `--scale --balance` | `deepseek_rl`, `olmo3_thinking_rlvr` |
+| `probe_eval_part2/<template>_1000_<tag>_tol1_all` | `--scale` | `deepseek_rl`, `olmo3_thinking_rlvr` |
+
+Use `results/part2` for `deepseek_rl` and `results/full/probe` for the other tags. For example:
+```bash
+mkdir -p probe_eval_bal probe_eval_results probe_eval_part2
+python experiment_code/layerwise_linear_probe/probe_eval.py \
+    results/full/probe/785_1000_deepseek_instruct_outputs deepseek-math-7b-instruct \
+    probe_eval_bal/785_1000_deepseek_instruct_tol1_all_bal --scale --balance
+```
+
+**Step 3: Arrange the results**
+The analysis scripts read `RERUN_RESULTS`, which defaults to `experiment_code/correction_rerun/results`. Move everything there:
+```bash
+R=experiment_code/correction_rerun/results
+mkdir -p $R/pod_results/part2 $R/pod_results/think300/token_var
+mv results/full $R/pod_results/full
+mv results/part2 $R/pod_results/part2/part2
+cp -r $R/pod_results/full/token_var/olmo3_thinking_rlvr_results $R/pod_results/think300/token_var/
+mv probe_eval_bal probe_eval_results probe_eval_part2 $R/
+```
+The analysis reads Olmo-3-Think token data from `think300`, because the paper's run finished that model in a later job.
+
+**Step 4: Recompute the paper's numbers and figures**
+Use an environment with numpy, pandas, scipy, scikit-learn, joblib, matplotlib, and seaborn:
+```bash
+cd experiment_code/correction_rerun/analysis
+python tokvar_rerun_analysis.py
+python tokvar_paper_numbers.py
+python answer_accuracy.py
+python trivial_baseline.py
+python probe_paper_numbers.py
+python make_fig2_rerun.py
+python make_probe_figs_rerun.py
+```
+Tables go to `analysis/out`, and figures go to `correction_rerun/figures_rerun`. `tokvar_paper_numbers.py` asserts the paper's DeepSeek-Math-RL values for the 20-40% bin, so a new run with different values stops there. The confidence bands in the probe figures are bootstrapped without a seed, so they change slightly between runs. The fitted lines and points do not.
+
 ## Citation
 
 If you find this work useful, please cite our paper:
