@@ -107,7 +107,7 @@ This implements systematic activation patching to investigate the criticality of
 
 *   **Visualizations**:
     ```bash
-    uv run experiment_code/layerwise_ablation/visualizaiton.py
+    uv run experiment_code/layerwise_ablation/visualization.py
     ```
 
 ### 4. Correction Rerun (Version 2)
@@ -118,6 +118,8 @@ The final results behind version 2 are in `experiment_code/correction_rerun/fina
 
 **Step 1: Generate on a GPU**
 Follow [`experiment_code/correction_rerun/pod/README.md`](experiment_code/correction_rerun/pod/README.md). `run_all.sh full` runs token variability, probe completions, and activation extraction for all four models. `run_part2.sh` then extracts DeepSeek-Math-RL activations at the final "The answer is:". The guide ends with the results in `results/full` and `results/part2`.
+
+`run_all.sh full` generates Olmo-3-Think probe data on all six templates. The paper's Olmo-3-Think probes came from `run_part2.sh` on four templates, with no Counting (884) run. To match the paper, do not train a probe on the 884 Olmo-3-Think outputs. Otherwise `probe_paper_numbers.py` can count more than the paper's 16 evaluable runs, which changes its Spearman value.
 
 **Step 2: Train the probes**
 Run `probe_eval.py` on each extraction directory. The analysis expects these outputs, where `<template>` is the template ID and `<tag>` is the model tag from the directory name:
