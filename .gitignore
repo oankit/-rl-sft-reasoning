@@ -34,3 +34,8 @@ venv/
 # Backup files
 *.bak
 *.backup
+
+# Correction rerun outputs
+/results/
+/probe_eval_*/
+/experiment_code.tgz
