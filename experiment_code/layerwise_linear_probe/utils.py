@@ -3,6 +3,7 @@ Utility functions for probing experiments
 """
 
 import json
+import re
 import numpy as np
 from pathlib import Path
 from typing import Optional, Tuple
@@ -31,16 +32,45 @@ def find_target_position(input_ids: torch.Tensor,
     tokens = tokenizer.convert_ids_to_tokens(input_ids)
     
     # Look for the '{' token that appears after 'boxed' or '\boxed'
+    # correction rerun: the '{' must start the token and directly follow 'boxed'.
+    # The original accepted any '{' with 'boxed' in the 5 tokens before it, so for
+    # \boxed{\frac{1}{2}} it returned a brace inside the answer.
     for i in range(len(tokens) - 1, -1, -1):  # Search backwards
-        token_str = str(tokens[i])
-        if target_token in token_str:
+        token_str = str(tokens[i]).lstrip('Ġ▁ ')  # byte-level / sentencepiece space marks
+        if token_str.startswith(target_token):
             # Verify it's part of \boxed by checking previous tokens
             if i > 0:
                 prev_tokens = ''.join([str(t) for t in tokens[max(0, i-5):i]])
-                if 'boxed' in prev_tokens.lower():
+                if prev_tokens.lower().rstrip('Ġ▁ ').endswith('boxed'):
                     return i
     
     return None
+
+
+ANSWER_PHRASE = re.compile(r"the answer is\b:?", re.IGNORECASE)  # not "isn't"
+
+
+def find_phrase_end_position(gen_ids: list, tokenizer, pattern=ANSWER_PHRASE) -> Optional[int]:
+    """Index of the token that ends the last match of `pattern` in the decoded text.
+
+    correction rerun: DS-RL ends with "The answer is: X" instead of \\boxed{X}. This is
+    the same before-answer delimiter, so its last token plays the role of the '{'.
+    Prefix decode lengths only grow, so a binary search finds the first prefix that
+    covers the end of the match.
+    """
+    text = tokenizer.decode(gen_ids, skip_special_tokens=False, clean_up_tokenization_spaces=False)
+    matches = list(pattern.finditer(text))
+    if not matches:
+        return None
+    end = matches[-1].end()
+    lo, hi = 1, len(gen_ids)
+    while lo < hi:
+        mid = (lo + hi) // 2
+        if len(tokenizer.decode(gen_ids[:mid], skip_special_tokens=False, clean_up_tokenization_spaces=False)) >= end:
+            hi = mid
+        else:
+            lo = mid + 1
+    return lo - 1
 
 
 def save_json(data: dict, path: Path):

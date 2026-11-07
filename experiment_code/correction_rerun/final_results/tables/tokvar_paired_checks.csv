@@ -1,0 +1,9 @@
+check,n,a_cv,b_cv,median_diff,t_p,wilcoxon_p,a_higher
+Olmo all,300,0.2554,0.2331,0.06448,0.09526,3.41e-07,207
+Olmo top both,276,0.2449,0.2035,0.07102,0.001491,4.751e-12,203
+Olmo other,24,0.3754,0.5735,-0.2751,0.002772,0.00533,4
+"Olmo top both, first 50",47,0.2487,0.1953,0.06219,0.08784,0.01001,32
+"Olmo top both, later 250",229,0.2441,0.2052,0.07571,0.006778,1.371e-10,171
+"Olmo top both, Think truncated dropped",276,0.241,0.2035,0.07046,0.00255,6.325e-12,203
+"Olmo top both, no Think sample over 8k",259,0.229,0.1777,0.07104,3.189e-09,2.179e-14,195
+DeepSeek top both,220,0.1122,0.2884,-0.1776,3.093e-25,1.115e-34,18

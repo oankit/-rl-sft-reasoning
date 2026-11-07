@@ -27,18 +27,24 @@ from transformers import (
     AutoTokenizer,
     Mistral3ForConditionalGeneration,
 )
-from vllm.transformers_utils.tokenizer import encode_tokens, get_tokenizer
-from utils import find_target_position, get_model_short_name, load_json, save_json
+# correction rerun: the vLLM tokenizer helpers are imported only on the Mistral paths,
+# so a non-Mistral extraction does not pay the vLLM import.
+from utils import find_phrase_end_position, find_target_position, get_model_short_name, load_json, save_json
 from tqdm import tqdm
 
 # Define
 Completion = Dict[str, Any]
 
 # Environment variables
-hf_cache_dir = os.path.expanduser("~/.cache/huggingface")
-os.environ["HF_HOME"] = hf_cache_dir
-os.environ["HUGGINGFACE_HUB_CACHE"] = hf_cache_dir
 os.environ["TOKENIZERS_PARALLELISM"] = "true"
+# correction rerun: if the caller set HF_HOME (the pod uses /workspace/hf), load from the
+# standard hub cache under it (cache_dir=None) instead of re-downloading to ~/.cache.
+if os.environ.get("HF_HOME"):
+    hf_cache_dir = None
+else:
+    hf_cache_dir = os.path.expanduser("~/.cache/huggingface")
+    os.environ["HF_HOME"] = hf_cache_dir
+    os.environ["HUGGINGFACE_HUB_CACHE"] = hf_cache_dir
 
 
 def _load_model_and_tokenizer(model_name: str) -> Tuple[Any, Any]:
@@ -48,13 +54,14 @@ def _load_model_and_tokenizer(model_name: str) -> Tuple[Any, Any]:
         "mistralai/Mistral-Small-3.2-24B-Instruct-2506",
         "mistralai/Magistral-Small-2509",
     }:
+        from vllm.transformers_utils.tokenizer import get_tokenizer
         tokenizer = get_tokenizer(model_name, tokenizer_mode="mistral")
         model = Mistral3ForConditionalGeneration.from_pretrained(
             model_name,
             output_hidden_states=True,
             device_map="cuda",
             cache_dir=hf_cache_dir,
-            torch_dtype=torch.float16,
+            torch_dtype=torch.bfloat16,
         )
     else:
         tokenizer = AutoTokenizer.from_pretrained(model_name, use_fast=True)
@@ -63,7 +70,7 @@ def _load_model_and_tokenizer(model_name: str) -> Tuple[Any, Any]:
 
         model = AutoModelForCausalLM.from_pretrained(
             model_name,
-            dtype=torch.float16,
+            dtype=torch.bfloat16,
             device_map="auto",
             output_hidden_states=True,
             cache_dir=hf_cache_dir,
@@ -168,6 +175,7 @@ def _tokenize_for_probe(
             "mistralai/Mistral-Small-3.2-24B-Instruct-2506",
             "mistralai/Magistral-Small-2509",
         }:
+            from vllm.transformers_utils.tokenizer import encode_tokens
             input_ids_list = encode_tokens(tokenizer, comp["generated_text"])
             input_ids = torch.tensor(input_ids_list)
         else:
@@ -180,6 +188,20 @@ def _tokenize_for_probe(
         target_pos = find_target_position(input_ids, tokenizer)
         if target_pos is None:
             target_pos = len(input_ids) - 1
+    elif probe_position == "before_answer_with_prompt":
+        prompt_ids = list(comp["prompt_token_ids"])
+        gen_ids = list(comp["output_token_ids"])
+        input_ids = torch.tensor(prompt_ids + gen_ids)
+        pos = find_target_position(torch.tensor(gen_ids), tokenizer) if gen_ids else None
+        comp["_boxed_found"] = pos is not None
+        comp["_probe_anchor"] = "boxed" if pos is not None else "last"
+        # correction rerun: no \boxed{ -> the "The answer is" delimiter, for finished
+        # outputs only. A truncated output has no final answer to probe before.
+        if pos is None and gen_ids and comp.get("finish_reason") != "length":
+            pos = find_phrase_end_position(gen_ids, tokenizer)
+            if pos is not None:
+                comp["_probe_anchor"] = "answer_is"
+        target_pos = len(prompt_ids) + (pos if pos is not None else len(gen_ids) - 1)
     else:
         raise ValueError(f"Unknown probe_position: {probe_position}")
 
@@ -227,9 +249,14 @@ def extract_activations_batched(
     probe_position: str = "before_answer",
     batch_size: int = 1,
     resume: bool = False,
+    checkpoint_interval: int = CHECKPOINT_INTERVAL,
+    loaded: Optional[Tuple[Any, Any]] = None,
 ):
     """
     Extracts activations from model completions with batching and checkpointing.
+
+    correction rerun: `loaded` is an already loaded (tokenizer, model), so one
+    process can extract several completion files with one model load.
 
     Args:
         model_name: HuggingFace model identifier.
@@ -261,7 +288,7 @@ def extract_activations_batched(
         return
 
     # Load model/tokenizer once and gather config metadata for array sizing.
-    tokenizer, model = _load_model_and_tokenizer(model_name)
+    tokenizer, model = loaded if loaded is not None else _load_model_and_tokenizer(model_name)
     pad_token_id = _resolve_pad_token_id(tokenizer)
 
     config = (
@@ -288,6 +315,8 @@ def extract_activations_batched(
         checkpoint_path, resume, n_layers, n_valid, hidden_dim
     )
 
+    boxed_found = np.ones(n_valid, dtype=bool)  # correction rerun: \boxed{ presence per example
+    probe_anchor = ["boxed"] * n_valid  # correction rerun: boxed, answer_is or last
     print(f"Extracting activations at position: {probe_position}")
     device = "cuda"
     skipped = 0
@@ -343,21 +372,28 @@ def extract_activations_batched(
             # hidden_states[-1] may be post-final-norm, reducing probe accuracy
             # We extract exactly n_layers transformer layers (indices 1 through n_layers)
             for layer_idx in range(1, min(n_layers + 1, len(hidden_states))):
+                # correction rerun: .float() because numpy has no bfloat16; the bf16 to
+                # float32 cast is exact.
                 activation = (
-                    hidden_states[layer_idx][local_idx, target_pos, :].cpu().numpy()
+                    hidden_states[layer_idx][local_idx, target_pos, :].float().cpu().numpy()
                 )
                 layer_activations.append(activation)
 
             activations[:, global_idx, :] = np.stack(layer_activations)
             valid_indices[global_idx] = comp["index"]
+            boxed_found[global_idx] = comp.get("_boxed_found", True)
+            probe_anchor[global_idx] = comp.get("_probe_anchor", "boxed")
             labels[global_idx] = 1 if comp["is_correct"] else 0
 
         if CLEAR_CACHE_BETWEEN_BATCHES:
             torch.cuda.empty_cache()
             gc.collect()
 
-        if ENABLE_CHECKPOINTING and (
-            batch_end % CHECKPOINT_INTERVAL == 0 or batch_end == n_valid
+        # correction rerun: checkpoint_interval 0 turns checkpoints off. Each checkpoint
+        # recompresses the whole [L, N, D] float32 array (about 0.5 GB), so the default
+        # of 100 costs minutes of GPU time per file.
+        if ENABLE_CHECKPOINTING and checkpoint_interval > 0 and (
+            batch_end % checkpoint_interval == 0 or batch_end == n_valid
         ):
             _save_checkpoint(
                 checkpoint_path, activations, labels, valid_indices, batch_end
@@ -394,6 +430,10 @@ def extract_activations_batched(
         "n_skipped": skipped,
         "n_correct": int(labels.sum()),
         "accuracy": float(labels.sum() / len(labels)) if len(labels) > 0 else 0.0,
+        "boxed_found": boxed_found.tolist(),
+        "probe_anchor": probe_anchor,
+        "boxed_found_rate_correct": float(boxed_found[labels == 1].mean()) if (labels == 1).any() else None,
+        "boxed_found_rate_incorrect": float(boxed_found[labels == 0].mean()) if (labels == 0).any() else None,
     }
 
     print(f"Saving metadata to {metadata_path}...")
@@ -414,16 +454,18 @@ def main():
         "--model_name", type=str, required=True, help="HuggingFace model name"
     )
     parser.add_argument(
-        "--completions_path", type=str, required=True, help="Path to completions JSON"
+        "--completions_path", type=str, required=True, nargs="+",
+        help="Path(s) to completions JSON",
     )
     parser.add_argument(
-        "--output_dir", type=str, default=DEFAULT_OUTPUT_DIR, help="Output directory"
+        "--output_dir", type=str, default=[DEFAULT_OUTPUT_DIR], nargs="+",
+        help="Output directory (one per --completions_path)",
     )
     parser.add_argument(
         "--probe_position",
         type=str,
         default="before_answer",
-        choices=["question_end", "before_answer"],
+        choices=["question_end", "before_answer", "before_answer_with_prompt"],
         help="Where to extract activations",
     )
     parser.add_argument(
@@ -435,17 +477,40 @@ def main():
     parser.add_argument(
         "--resume", action="store_true", help="Resume from checkpoint if it exists"
     )
+    parser.add_argument(
+        "--checkpoint_interval",
+        type=int,
+        default=CHECKPOINT_INTERVAL,
+        help="Save a checkpoint every N examples; 0 disables checkpoints",
+    )
 
     args = parser.parse_args()
+    if len(args.completions_path) != len(args.output_dir):
+        parser.error("give one --output_dir per --completions_path")
 
-    extract_activations_batched(
-        args.model_name,
-        args.completions_path,
-        args.output_dir,
-        args.probe_position,
-        args.batch_size,
-        args.resume,
-    )
+    # correction rerun: several files share one model load. With --resume, files whose
+    # outputs already exist are skipped, and the model is not loaded if all are done.
+    model_short = get_model_short_name(args.model_name)
+    loaded = None
+    for completions_path, output_dir in zip(args.completions_path, args.output_dir):
+        done = all((Path(output_dir) / f"{k}_{model_short}.{ext}").exists()
+                   for k, ext in [("activations", "npy"), ("labels", "npy"), ("metadata", "json")])
+        if args.resume and done:
+            print(f"{output_dir}: extraction already complete. Skipping.")
+            continue
+        if loaded is None:
+            loaded = _load_model_and_tokenizer(args.model_name)
+        print(f"===== {completions_path}", flush=True)
+        extract_activations_batched(
+            args.model_name,
+            completions_path,
+            output_dir,
+            args.probe_position,
+            args.batch_size,
+            args.resume,
+            args.checkpoint_interval,
+            loaded=loaded,
+        )
 
 
 if __name__ == "__main__":

@@ -1,0 +1,5 @@
+model,spearman,p,low_cv,low_n,high_cv,high_n
+Olmo-3-Think,-0.3484,5.474e-10,0.3626,8,0.2524,292
+Olmo-3-Instruct,-0.4474,3.616e-16,0.5404,21,0.21,279
+DeepSeek-Math-RL,-0.3853,4.694e-12,0.5558,45,0.1483,255
+DeepSeek-Math-Instruct,-0.1339,0.02034,0.5251,75,0.2882,225
