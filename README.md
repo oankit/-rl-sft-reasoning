@@ -112,7 +112,7 @@ This implements systematic activation patching to investigate the criticality of
 
 Version 2 of the paper reruns the probing and token-count experiments with corrected code. Sections 1 and 2 above describe the version 1 runs. The layer-wise ablation experiment was not rerun.
 
-The rerun results are not in this repository. The `*_results` and `balanced_outputs` directories hold the version 1 results.
+The final results behind version 2 are in `experiment_code/correction_rerun/final_results`: the paper's tables, the probe summaries, and the figures. Raw completions and activations are not in this repository, so Step 4 needs the output of Steps 1 to 3. The `*_results` and `balanced_outputs` directories hold the version 1 results.
 
 **Step 1: Generate on a GPU**
 Follow [`experiment_code/correction_rerun/pod/README.md`](experiment_code/correction_rerun/pod/README.md). `run_all.sh full` runs token variability, probe completions, and activation extraction for all four models. `run_part2.sh` then extracts DeepSeek-Math-RL activations at the final "The answer is:". The guide ends with the results in `results/full` and `results/part2`.

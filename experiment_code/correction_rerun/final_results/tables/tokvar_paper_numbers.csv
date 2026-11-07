@@ -1,0 +1,2 @@
+olmo_shared_problems,think_cv,instruct_cv,paired_t_p,paired_t_stat,mean_diff_cv,diff_ci95,wilcoxon_p,think_higher_problems,top_bin_both_problems,top_bin_think_cv,top_bin_instruct_cv,top_bin_paired_t_p,think_acc,instruct_acc,think_median,instruct_median,think_mean_tok,instruct_mean_tok,min_tok_think,min_tok_instruct,think_truncated,rl_2040_problems,rl_2040_cv,rl_2040_cv_no_truncated
+300,0.2554,0.2331,0.09526,1.674,0.02222,0.02613,3.41e-07,207,276,0.2449,0.2035,0.001491,0.9852,0.9625,1834,289,2331,374,312,96,7,9,0.9763,0.4136
