@@ -3,7 +3,9 @@
 
 ## Abstract
 
-Large reasoning models trained via reinforcement learning (RL) substantially outperform their supervised counterparts on tasks requiring logic and mathematical reasoning, yet the mechanistic basis for these improvements remains unclear. We investigate this phenomenon through an integrated behavioral-mechanistic analysis of mathematical reasoning, asking: *what internal differences enable RL models' improved reasoning capabilities?*
+Large language models trained with reinforcement learning (RL) to reason step by step have been increasingly shown to outperform their supervised fine-tuned (SFT) counterparts on mathematical reasoning tasks. Yet the mechanistic basis for this improvement remains unclear. We therefore ask, *what internal representational differences enable RL-trained reasoning language models to reason better?* Our work presents two primary lines of evidence: First, layer-wise linear probes tend to predict answer correctness more accurately in RL-trained reasoning language models than in instruction-tuned models on synthetic math problems, although output length alone matches the DeepSeek-Math-RL probe on two templates. Second, mean ablation studies suggest that accuracy drop rises with layer depth in DeepSeek-Math-RL but not in DeepSeek-Math-Instruct. Finally, we analyse token-count variability across accuracy bins for RL-trained reasoning language models and instruction-tuned models to measure whether token counts vary more on harder problems. Token counts tend to vary more on lower-accuracy problems, although in DeepSeek-Math-Instruct only with truncated responses included. At high accuracy, we observe lower variability in DeepSeek-Math-RL than in DeepSeek-Math-Instruct, and we observe higher variability in Olmo-3-Think than in Olmo-3-Instruct.
+
+This is the abstract of version 2, which corrects [arXiv:2607.26119v1](https://arxiv.org/abs/2607.26119). The Correction Note in the paper lists the main changes.
 
 ## Authors
 
@@ -105,7 +107,7 @@ This implements systematic activation patching to investigate the criticality of
 
 *   **Visualizations**:
     ```bash
-    uv run experiment_code/layerwise_ablation/visualizaiton.py
+    uv run experiment_code/layerwise_ablation/visualization.py
     ```
 
 ### 4. Correction Rerun (Version 2)
@@ -116,6 +118,8 @@ The final results behind version 2 are in `experiment_code/correction_rerun/fina
 
 **Step 1: Generate on a GPU**
 Follow [`experiment_code/correction_rerun/pod/README.md`](experiment_code/correction_rerun/pod/README.md). `run_all.sh full` runs token variability, probe completions, and activation extraction for all four models. `run_part2.sh` then extracts DeepSeek-Math-RL activations at the final "The answer is:". The guide ends with the results in `results/full` and `results/part2`.
+
+`run_all.sh full` generates Olmo-3-Think probe data on all six templates. The paper's Olmo-3-Think probes came from `run_part2.sh` on four templates, with no Counting (884) run. To match the paper, do not train a probe on the 884 Olmo-3-Think outputs. Otherwise `probe_paper_numbers.py` can count more than the paper's 16 evaluable runs, which changes its Spearman value.
 
 **Step 2: Train the probes**
 Run `probe_eval.py` on each extraction directory. The analysis expects these outputs, where `<template>` is the template ID and `<tag>` is the model tag from the directory name:
@@ -156,10 +160,10 @@ python tokvar_paper_numbers.py
 python answer_accuracy.py
 python trivial_baseline.py
 python probe_paper_numbers.py
-python make_fig2_rerun.py
-python make_probe_figs_rerun.py
+python make_vector_figs.py make_fig2_rerun.py
+python make_vector_figs.py make_probe_figs_rerun.py
 ```
-Tables go to `analysis/out`, and figures go to `correction_rerun/figures_rerun`. `tokvar_paper_numbers.py` asserts the paper's DeepSeek-Math-RL values for the 20-40% bin, so a new run with different values stops there. The confidence bands in the probe figures are bootstrapped without a seed, so they change slightly between runs. The fitted lines and points do not.
+Tables go to `analysis/out`, and figures go to `correction_rerun/figures_rerun`. `tokvar_paper_numbers.py` asserts the paper's DeepSeek-Math-RL values for the 20-40% bin, so a new run with different values stops there. `make_vector_figs.py` saves each figure as a PNG and a PDF and fixes the seed of the probe figures' confidence bands, so these figures match `final_results/figures`.
 
 ## Citation
 

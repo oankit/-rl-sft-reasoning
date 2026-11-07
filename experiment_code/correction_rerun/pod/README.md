@@ -163,7 +163,7 @@ Check the downloaded sizes against `results_manifest.txt`. Then stop the pod in 
 
 ## Run part 2
 
-`run_part2.sh` extracts DeepSeek-Math-RL activations again, at the final "The answer is:" when an output has no `\boxed{`. It reuses the completions from `run_all.sh`, so copy them first. `run_all.sh full` has already generated the Olmo-3-Think probe data, so `THINK_TEMPLATES=" "` skips those steps:
+`run_part2.sh` extracts DeepSeek-Math-RL activations again, at the final "The answer is:" when an output has no `\boxed{`. It reuses the completions from `run_all.sh`, so copy them first. `run_all.sh full` has already generated the Olmo-3-Think probe data, so `THINK_TEMPLATES=" "` skips those steps. The paper's Olmo-3-Think probes came from this script on its four default templates, with no Counting (884) run, so the data from `run_all.sh` adds templates that the paper did not use:
 
 ```bash
 mkdir -p /workspace/results/part2
