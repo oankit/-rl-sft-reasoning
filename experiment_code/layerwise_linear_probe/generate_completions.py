@@ -35,19 +35,24 @@ from utils import (
     save_json,
 )
 
-# Set HuggingFace cache directory to user's home directory
-cache_home = Path.home() / ".cache" / "huggingface"
-cache_home.mkdir(parents=True, exist_ok=True)
-hub_cache = cache_home / "hub"
-hub_cache.mkdir(parents=True, exist_ok=True)
-
-os.environ["HF_HOME"] = str(cache_home.parent)
-os.environ["HF_HUB_CACHE"] = str(hub_cache)
-os.environ["XDG_CACHE_HOME"] = str(cache_home.parent)
 os.environ["TOKENIZERS_PARALLELISM"] = "true"
+# correction rerun: if the caller set HF_HOME (the pod uses /workspace/hf), use the
+# standard hub cache under it, so vLLM reads the pre-downloaded models.
+if os.environ.get("HF_HOME"):
+    DEFAULT_DOWNLOAD_DIR = None
+else:
+    # Set HuggingFace cache directory to user's home directory
+    cache_home = Path.home() / ".cache" / "huggingface"
+    cache_home.mkdir(parents=True, exist_ok=True)
+    hub_cache = cache_home / "hub"
+    hub_cache.mkdir(parents=True, exist_ok=True)
 
-DEFAULT_DOWNLOAD_DIR = Path.home() / ".cache" / "huggingface" / "models"
-DEFAULT_DOWNLOAD_DIR.mkdir(parents=True, exist_ok=True)
+    os.environ["HF_HOME"] = str(cache_home.parent)
+    os.environ["HF_HUB_CACHE"] = str(hub_cache)
+    os.environ["XDG_CACHE_HOME"] = str(cache_home.parent)
+
+    DEFAULT_DOWNLOAD_DIR = Path.home() / ".cache" / "huggingface" / "models"
+    DEFAULT_DOWNLOAD_DIR.mkdir(parents=True, exist_ok=True)
 
 
 
@@ -207,11 +212,14 @@ def _build_llm_kwargs(
         "limit_mm_per_prompt": gen_config.get("limit_mm_per_prompt", {"image": 0}),
         "trust_remote_code": gen_config.get("trust_remote_code", True),
         "gpu_memory_utilization": gpu_memory_utilization,
-        "download_dir": str(DEFAULT_DOWNLOAD_DIR),
+        "download_dir": str(DEFAULT_DOWNLOAD_DIR) if DEFAULT_DOWNLOAD_DIR else None,
         "max_num_seqs": max_num_seqs,
         "max_model_len": max_model_len,
         "tensor_parallel_size": tensor_parallel_size,
         "pipeline_parallel_size": pipeline_parallel_size,
+        # correction rerun: an engine seed makes the completions reproducible. The
+        # original set none. A per-request seed would give every prompt one stream.
+        "seed": 0,
     }
     if "mistral" in model_name.lower():
         llm_kwargs["tokenizer_mode"] = "mistral"
@@ -233,8 +241,8 @@ def _resolve_index(row, fallback_idx: int) -> int:
 
 def generate_completions(
     model_name: str,
-    dataset_path: str,
-    output_dir: str,
+    dataset_path: str | list[str],
+    output_dir: str | list[str],
     limit: int | None,
     max_new_tokens: int | None,
     temperature: float | None,
@@ -250,10 +258,19 @@ def generate_completions(
     
     Loads dataset, configures LLM, generates responses, extracts answers,
     checks correctness, and saves results to JSON.
+
+    correction rerun: dataset_path and output_dir may be equal-length lists. All
+    datasets go through one model load and one llm.generate call, and each dataset
+    still gets its own completions file. One call avoids a reload per template and
+    a slow tail of long completions per template.
     """
-    df = _load_dataset(dataset_path, limit)
-    output_directory = Path(output_dir)
-    output_directory.mkdir(parents=True, exist_ok=True)
+    dataset_paths = [dataset_path] if isinstance(dataset_path, str) else list(dataset_path)
+    output_dirs = [output_dir] if isinstance(output_dir, str) else list(output_dir)
+    if len(dataset_paths) != len(output_dirs):
+        raise ValueError("Give one --output_dir per --dataset_path.")
+    dfs = [_load_dataset(path, limit) for path in dataset_paths]
+    for out in output_dirs:
+        Path(out).mkdir(parents=True, exist_ok=True)
 
     merged_config = _merge_generation_overrides(
         model_name, max_new_tokens, temperature, top_p
@@ -277,23 +294,22 @@ def generate_completions(
         tokenizer = llm.llm_engine.tokenizer
 
         model_short = get_model_short_name(model_name)
-        output_path = output_directory / f"completions_{model_short}.json"
 
-        results = []
-        n_correct = 0
-        n_extracted = 0
-        
-        print(f"Starting generation for {len(df)} prompts...")
+        print(f"Starting generation for {sum(len(df) for df in dfs)} prompts...")
 
         # Prepare all prompts
         prompts = []
-        for _, row in df.iterrows():
+        for _, row in pd.concat(dfs, ignore_index=True).iterrows():
             question = str(row["question"])
             user_prompt = create_prompt(question)
             messages = [
                 {"role": "system", "content": resolved_system_prompt},
                 {"role": "user", "content": user_prompt},
             ]
+            # correction rerun: kept as a string prompt, as in the published probe runs.
+            # vLLM adds BOS when it encodes the string, so DeepSeek prompts start with two
+            # BOS tokens, as they did in the published runs. Extraction replays the
+            # prompt_token_ids saved below, so it sees the same tokens as generation.
             prompts.append(format_messages_to_prompt(messages, tokenizer))
 
         # Generate completions for all prompts
@@ -304,61 +320,80 @@ def generate_completions(
             print(f"\n[ERROR] Failed during generation: {exc}")
             import traceback
             traceback.print_exc()
-            outputs = []
-
-        # Process results
-        for i, (_, row) in enumerate(df.iterrows()):
-            question = str(row["question"])
-            ground_truth = float(row["answer"])
-            original_index = row.name
-
-            text = ""
-            if i < len(outputs) and outputs[i].outputs:
-                text = outputs[i].outputs[0].text
-            else:
-                print(f"Warning: No output generated for question at index {original_index}")
-
-            extracted_answer = extract_answer(question, text)
-            if not extracted_answer:
-                extracted_answer = "nan"
-            if extracted_answer != "nan":
-                n_extracted += 1
-
-            is_correct = check_answer_correct(
-                extracted_answer, ground_truth, ANSWER_TOLERANCE
-            )
-            if is_correct:
-                n_correct += 1
-            
-            record = {
-                "index": _resolve_index(row, original_index),
-                "question": question,
-                "ground_truth": ground_truth,
-                "generated_text": text,
-                "generated_answer": extracted_answer,
-                "is_correct": bool(is_correct),
-            }
-            results.append(record)
-
-        print(f"\nSaving results to {output_path}...")
-        try:
-            save_json(results, output_path)
-            print("Results saved successfully!")
-        except Exception as e:
-            print(f"[ERROR] Failed to save results: {e}")
-            import traceback
-            traceback.print_exc()
+            # correction rerun: re-raise. The original saved a file of empty completions
+            # and exited 0, which a driver would record as a finished stage.
             raise
 
-        total = len(results)
-        accuracy = (n_correct / total) * 100 if total else 0.0
-        extracted_pct = (n_extracted / total) * 100 if total else 0.0
+        all_prompts, all_outputs = prompts, outputs
+        offset = 0
+        for df, out in zip(dfs, output_dirs):
+            prompts = all_prompts[offset:offset + len(df)]
+            outputs = all_outputs[offset:offset + len(df)]
+            offset += len(df)
+            output_path = Path(out) / f"completions_{model_short}.json"
+            results = []
+            n_correct = 0
+            n_extracted = 0
 
-        print(f"Results saved to: {output_path}")
-        print(f"Total questions: {total}")
-        print(f"Answers extracted: {n_extracted} ({extracted_pct:.1f}%)")
-        print(f"Correct answers: {n_correct} ({accuracy:.1f}%)")
-        print(f"{'=' * 60}")
+            # Process results
+            for i, (_, row) in enumerate(df.iterrows()):
+                question = str(row["question"])
+                ground_truth = float(row["answer"])
+                original_index = row.name
+
+                text = ""
+                if i < len(outputs) and outputs[i].outputs:
+                    text = outputs[i].outputs[0].text
+                else:
+                    print(f"Warning: No output generated for question at index {original_index}")
+
+                extracted_answer = extract_answer(question, text)
+                if not extracted_answer:
+                    extracted_answer = "nan"
+                if extracted_answer != "nan":
+                    n_extracted += 1
+
+                is_correct = check_answer_correct(
+                    extracted_answer, ground_truth, ANSWER_TOLERANCE
+                )
+                if is_correct:
+                    n_correct += 1
+            
+                record = {
+                    "index": _resolve_index(row, original_index),
+                    "question": question,
+                    "ground_truth": ground_truth,
+                    "generated_text": text,
+                    "generated_answer": extracted_answer,
+                    "is_correct": bool(is_correct),
+                    # correction rerun: keep exactly what the model processed, so extraction can
+                    # replay prompt + completion instead of the completion alone.
+                    "prompt": prompts[i],
+                    "prompt_token_ids": list(outputs[i].prompt_token_ids) if i < len(outputs) else [],
+                    "output_token_ids": list(outputs[i].outputs[0].token_ids) if i < len(outputs) and outputs[i].outputs else [],
+                    "finish_reason": outputs[i].outputs[0].finish_reason if i < len(outputs) and outputs[i].outputs else None,
+                }
+                results.append(record)
+
+            print(f"\nSaving results to {output_path}...")
+            try:
+                save_json(results, output_path)
+                print("Results saved successfully!")
+            except Exception as e:
+                print(f"[ERROR] Failed to save results: {e}")
+                import traceback
+                traceback.print_exc()
+                raise
+
+            total = len(results)
+            accuracy = (n_correct / total) * 100 if total else 0.0
+            extracted_pct = (n_extracted / total) * 100 if total else 0.0
+
+            print(f"Results saved to: {output_path}")
+            print(f"Total questions: {total}")
+            print(f"Answers extracted: {n_extracted} ({extracted_pct:.1f}%)")
+            print(f"Correct answers: {n_correct} ({accuracy:.1f}%)")
+            print(f"{'=' * 60}")
     except Exception as e:
         print(f"\n[ERROR] Unexpected error in generate_completions: {e}")
         import traceback
@@ -407,12 +442,14 @@ def main() -> None:
     parser.add_argument(
         "--dataset_path",
         required=True,
-        help="Path to CSV dataset with 'question' and 'answer' columns",
+        nargs="+",
+        help="Path(s) to CSV dataset with 'question' and 'answer' columns",
     )
     parser.add_argument(
         "--output_dir",
         default=DEFAULT_OUTPUT_DIR,
-        help="Directory to save completions JSON",
+        nargs="+",
+        help="Directory to save completions JSON (one per --dataset_path)",
     )
     parser.add_argument(
         "--limit",
